@@ -43,45 +43,6 @@ class MainScreenActivity : AppCompatActivity() {
         Log.e("value", sh.getInt("1", 0).toString())
         Snackbar.make(findViewById(R.id.g), "Hello", Toast.LENGTH_SHORT).show()
 
-        Thread{
-            val h = get_top()
-            for (i in h) {
-                   Log.e("fff", i["url"]!!)
-                    runOnUiThread {
-                        val b = music_item(this, track_name=i["name"]!!, artist_name=i["artist"]!!, track_url=i["avatar"]!!)
-                        //b.setText(i)
-                        //b.isAllCaps = false
-                        b.setOnClickListener({
-                            Thread({
-                                runOnUiThread({b.loader_bar.visibility = View.VISIBLE})
-                                val f = play(i["url"]!!, b)
-                                if (f == true) {
-                                    b.play_button.setImageDrawable(
-                                        ContextCompat.getDrawable(
-                                            this,
-                                            R.drawable.ic_baseline_pause_24
-                                        )
-                                    )
-                                } else {
-                                    b.play_button.setImageDrawable(
-                                        ContextCompat.getDrawable(
-                                            this,
-                                            R.drawable.ic_baseline_play_arrow_24
-                                        )
-                                    )
-                                }
-                                runOnUiThread({b.loader_bar.visibility = View.INVISIBLE})
-                            }).start()
-                        })
-                        scr.addView(b)
-                    }
-                    //Log.e("names", i)
-
-
-
-                }
-
-        }.start()
 
         //print(message = ht.html())
 //        val rt = Retrofit.Builder().baseUrl("http://jsonplaceholder.typicode.com/").addConverterFactory(

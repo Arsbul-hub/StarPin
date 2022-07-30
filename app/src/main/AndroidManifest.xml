@@ -17,6 +17,9 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".track_info_bar"
+            android:exported="false" />
+        <activity
             android:name=".search_screen"
             android:exported="false" />
         <activity

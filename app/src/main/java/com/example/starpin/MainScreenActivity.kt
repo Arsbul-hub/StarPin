@@ -43,11 +43,30 @@ class MainScreenActivity : AppCompatActivity() {
                         }
 
                         old_item = item
-                        item.loader_bar.visibility = View.VISIBLE
-                        Thread {
-                            music_player().play(data.name, data.artist, data.url)
-                            runOnUiThread { item.loader_bar.visibility = View.INVISIBLE }
-                        }.start()
+                        if (data.name != current_track["name"]!!) {
+                            item.loader_bar.visibility = View.VISIBLE
+                            bar.open_bar(data.name, data.artist, data.avatar, data.url)
+                            Thread {
+                                //music_player().play(data.url)
+                                MusicPlayer.play(track_url = data.url)
+                                playing_state = true
+                                runOnUiThread {
+                                    item.loader_bar.visibility = View.INVISIBLE
+                                    bar.open_bar(data.name, data.artist, data.avatar, data.url)
+                                }
+                            }.start()
+
+                        }
+                        else if (data.name == current_track["name"]!! && playing_state == true) {
+                            MusicPlayer.pause()
+                            playing_state = false
+                        } else {
+                            playing_state = true
+                            MusicPlayer.unpause()
+                        }
+
+
+
                     }
                 })
                 tracks_view.layoutManager =

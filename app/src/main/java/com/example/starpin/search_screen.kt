@@ -1,10 +1,12 @@
 package com.example.starpin
 
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
+import android.view.inputmethod.InputMethodManager
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.main_screen.*
 import kotlinx.android.synthetic.main.music_item.*
@@ -33,11 +35,26 @@ class search_screen : AppCompatActivity() {
                 LinearLayoutManager.VERTICAL,
                 false
             )
-        search_button.setOnClickListener { search() }
+        search_button.setOnClickListener {
+            val imm: InputMethodManager =
+                getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(search_field.windowToken, 0)
+
+            search_field.clearFocus()
+            search()
+        }
         search_field.setOnKeyListener { view, keycode, keyevent ->
             if (keyevent.keyCode == KeyEvent.KEYCODE_ENTER) {
 
                 search()
+
+
+
+                val imm: InputMethodManager =
+                    getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.hideSoftInputFromWindow(search_field.windowToken, 0)
+
+                search_field.clearFocus()
                 return@setOnKeyListener true
             }
             runOnUiThread { found_status.visibility = View.INVISIBLE }
@@ -69,7 +86,7 @@ class search_screen : AppCompatActivity() {
                                 old_item = item
                                 item.loader_bar.visibility = View.VISIBLE
                                 Thread {
-                                    music_player().play(data.name, data.artist, data.url)
+                                    music_player().play(data.name)
                                     runOnUiThread {item.loader_bar.visibility = View.INVISIBLE}
                                 }.start()
 

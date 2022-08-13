@@ -11,7 +11,7 @@ import kotlinx.android.synthetic.main.music_item.view.*
 import org.jsoup.Jsoup
 
 // r.get("https://ru.hitmotop.com/search?q=" + req.replace(" ", "+")).text
-fun search_music(req: String): List<Data> {
+fun search_music(req: String): List<Track> {
 
     var dt = Jsoup.connect("https://ru.hitmotop.com/search?q=" + req.replace(" ", "+")).get().html()
     dt = dt.substringAfter("""<div class="p-info p-inner">""")
@@ -61,12 +61,12 @@ fun search_music(req: String): List<Data> {
         }
     }
     return out_list.map{
-        Data(name=it["name"]!!, artist=it["artist"]!!, url=it["url"]!!, avatar=it["avatar"]!!)
+        Track(name=it["name"]!!, artist=it["artist"]!!, url=it["url"]!!, avatar=it["avatar"]!!)
 
     }
 }
 
-fun get_top(): List<Data> {
+fun get_top(): List<Track> {
 
 
     var dt = Jsoup.connect("https://ru.hitmotop.com/songs/top-today").get().html()
@@ -118,7 +118,7 @@ fun get_top(): List<Data> {
         }
     }
     return out_top.map{
-        Data(name=it["name"]!!, artist=it["artist"]!!, url=it["url"]!!, avatar=it["avatar"]!!)
+        Track(name=it["name"]!!, artist=it["artist"]!!, url=it["url"]!!, avatar=it["avatar"]!!)
 
     }
 }

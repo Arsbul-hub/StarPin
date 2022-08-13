@@ -3,10 +3,13 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/StarPin/app/src/main/res/layout/activity_track_info_bar.xml" value="0.2942708333333333" />
+        <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/StarPin/app/src/main/res/layout/activity_track_info_bar.xml" value="0.21818181061547676" />
+        <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/StarPin/app/src/main/res/layout/main_activity.xml" value="0.29322916666666665" />
+        <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/StarPin/app/src/main/res/layout/main_fragment.xml" value="0.2942708333333333" />
         <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/StarPin/app/src/main/res/layout/main_screen.xml" value="0.2879999900124293" />
         <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/StarPin/app/src/main/res/layout/music_item.xml" value="0.2879999900124293" />
         <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/StarPin/app/src/main/res/layout/my_dialog.xml" value="0.2879999900124293" />
+        <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/StarPin/app/src/main/res/layout/search_fragment.xml" value="0.2942708333333333" />
         <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/StarPin/app/src/main/res/layout/search_screen.xml" value="0.2942708333333333" />
         <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/StarPin/app/src/main/res/layout/track_item.xml" value="0.2942708333333333" />
       </map>

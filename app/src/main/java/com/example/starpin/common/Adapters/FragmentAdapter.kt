@@ -1,4 +1,4 @@
-package com.example.starpin
+package com.example.starpin.common.Adapters
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity

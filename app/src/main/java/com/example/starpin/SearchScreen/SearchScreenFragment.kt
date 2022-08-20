@@ -10,7 +10,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.android.synthetic.main.music_item.view.*
+import kotlinx.android.synthetic.main.track_item.view.*
 
 import kotlinx.android.synthetic.main.main_activity.*
 import kotlinx.android.synthetic.main.search_fragment.view.*
@@ -42,7 +42,7 @@ class SearchScreenFragment: Fragment() {
                 item.loader_bar.visibility = View.VISIBLE
 
                 //bar.open_bar(data.name, data.artist, data.avatar, data.url)
-                Thread {
+                val t = Thread {
                     //music_player().play(data.url)
                     MusicPlayer.play(track_url = url)
                     playing_state = true
@@ -50,7 +50,9 @@ class SearchScreenFragment: Fragment() {
                         item.loader_bar.visibility = View.INVISIBLE
 
                     }
-                }.start()
+                }
+                t.start()
+                t.uncaughtExceptionHandler = Thread.UncaughtExceptionHandler { p0, p1 -> }
             }
         }
 
@@ -111,14 +113,8 @@ class SearchScreenFragment: Fragment() {
                     view.search_tracks_view.adapter = TrackAdapter(
                         h,
                         object : OnClick {
-                            override fun onClickTrack(data: Track, item: View) {
-                                requireActivity().bar.open_bar(
-                                    data.name,
-                                    data.artist,
-                                    data.avatar,
-                                    data.url,
-                                    item
-                                )
+                            override fun onClickTrack(tracks_list: MutableList<Track>, track_index: Int, item: View) {
+                                requireActivity().bar.OpenBar(tracks_list, track_index, item)
                             }
                         }
                     )

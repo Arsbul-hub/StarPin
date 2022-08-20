@@ -1,13 +1,6 @@
 package com.example.starpin
 
-import android.media.AudioAttributes
-import android.media.MediaPlayer
-import android.net.Uri
-import android.provider.DocumentsContract
-import android.util.Log
-import android.view.View
-import androidx.core.content.ContextCompat
-import kotlinx.android.synthetic.main.music_item.view.*
+
 import org.jsoup.Jsoup
 
 // r.get("https://ru.hitmotop.com/search?q=" + req.replace(" ", "+")).text

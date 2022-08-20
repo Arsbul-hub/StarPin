@@ -1,26 +1,14 @@
 package com.example.starpin
 
-import android.app.Activity
 import android.content.Context
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
-import kotlinx.android.synthetic.main.activity_track_info_bar.view.*
-import kotlinx.android.synthetic.main.activity_track_info_bar.view.artist
-import kotlinx.android.synthetic.main.activity_track_info_bar.view.avatar
-import kotlinx.android.synthetic.main.activity_track_info_bar.view.name
+import kotlinx.android.synthetic.main.track_info_bar.view.*
 
-
-
-import org.w3c.dom.Attr
-
-var current_track: MutableMap<String, String> =
-    mutableMapOf(Pair("name", ""), Pair("artist", ""), Pair("avatar", ""), Pair("url", ""))
+var current_track: Track = Track(name = "", artist = "", avatar = "", url = "")
 var playing_state = false
 val MusicPlayer = music_player()
 
@@ -39,11 +27,11 @@ class track_info_bar :
     )
 
     lateinit var on_new_track: OnNewTrackPlay
-
+    var complete_track_index = 0
 
     init {
 
-        inflate(context, R.layout.activity_track_info_bar, this)
+        inflate(context, R.layout.track_info_bar, this)
         visibility = View.GONE
         play_button.setOnClickListener {
 
@@ -71,27 +59,32 @@ class track_info_bar :
     }
 
 
-    fun open_bar(
-        track_name: String,
-        track_artist: String,
-        track_avatar: String,
-        track_url: String,
-        item: View
-    ) {
+    fun OpenBar(tracks_list: MutableList<Track>, track_index: Int, item: View) {
+        val track = tracks_list[track_index]
+
+        MusicPlayer.on_complete = object : NextTrack {
+            override fun OnComplete() {
+                if (track_index + 1 < tracks_list.size) {
+                    OpenBar(tracks_list, track_index + 1, item)
+
+                } else {
+                    OpenBar(tracks_list, 0, item)
+                }
+
+            }
+        }
+
         visibility = View.VISIBLE
+        name.setText(track.name)
+        artist.setText(track.artist)
+        Glide.with(this).load(track.avatar).into(avatar)
 
-        name.setText(track_name)
-        artist.setText(track_artist)
-        Glide.with(this).load(track_avatar).into(avatar)
 
-        if (track_name != current_track["name"]!!) {
-            on_new_track.OnPlay(track_url, item)
-            current_track = mutableMapOf(
-                Pair("name", track_name),
-                Pair("artist", track_artist),
-                Pair("avatar", track_avatar),
-                Pair("url", track_url)
-            )
+        if (track != current_track) {
+
+            on_new_track.OnPlay(track.url, item)
+
+            current_track = track
             play_button.setImageDrawable(
                 ContextCompat.getDrawable(
                     context,

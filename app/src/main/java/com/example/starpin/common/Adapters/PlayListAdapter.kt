@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.starpin.Loader.TracksInPlayLists
+import com.example.starpin.Loader.UserPlayLists
 import com.example.starpin.common.PlayList
 import kotlinx.android.synthetic.main.play_list_item.view.*
 import kotlinx.android.synthetic.main.track_item.view.*
@@ -25,6 +27,7 @@ class PlayListAdapter(val data: MutableList<PlayList>, val on_click: OnClickList
         val list = data[position]
         holder.itemView.play_list_name.text = list.name
         holder.itemView.play_list_name.setOnClickListener{
+
             on_click!!.onOpen(list)
         }
     }

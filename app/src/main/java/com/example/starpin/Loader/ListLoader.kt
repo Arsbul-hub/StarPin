@@ -15,7 +15,13 @@ class UserPlayLists{
         fragment_view.loading.visibility = View.VISIBLE
         fragment_view.list_view.visibility = View.GONE
         fragment_view.connection_error.visibility = View.GONE
+        screens.list_screen.load_list = object : Load {
+            override fun load_list_items(fragment_view: View) {
+                UserPlayLists().load(fragment_view, activity)
 
+            }
+
+        }
 
 
 
@@ -36,21 +42,28 @@ class UserPlayLists{
 }
 class TracksInPlayLists {
     fun load(fragment_view: View, activity: Activity, playList: PlayList){
+
         fragment_view.loading.visibility = View.VISIBLE
         fragment_view.list_view.visibility = View.GONE
         fragment_view.connection_error.visibility = View.GONE
 
+        screens.list_screen.load_list = object : Load {
+            override fun load_list_items(fragment_view: View) {
+                TracksInPlayLists().load(fragment_view, activity, playList)
 
+            }
+
+        }
         val lt = Thread {
 
             activity.runOnUiThread {
-                fragment_view.list_view.adapter = TrackAdapter(playList.tracks, object : OnClick {
+                fragment_view.list_view.adapter = TrackAdapter(playList.tracks.toMutableList(), object : OnClick {
                     override fun onClickTrack(
                         tracks_list: MutableList<Track>,
                         track_index: Int,
                         item: View
                     ) {
-                        activity.bar.OpenBar(tracks_list, track_index, item)
+                        activity.bar.open(tracks_list, track_index, item)
                     }
 
                 })
@@ -68,7 +81,13 @@ class TracksInTop {
         fragment_view.loading.visibility = View.VISIBLE
         fragment_view.list_view.visibility = View.GONE
         fragment_view.connection_error.visibility = View.GONE
+        screens.list_screen.load_list = object : Load {
+            override fun load_list_items(fragment_view: View) {
+                TracksInTop().load(fragment_view, activity)
 
+            }
+
+        }
 
         val lt = Thread {
             val p = get_top().toMutableList()
@@ -79,7 +98,7 @@ class TracksInTop {
                         track_index: Int,
                         item: View
                     ) {
-                        activity.bar.OpenBar(tracks_list, track_index, item)
+                        activity.bar.open(tracks_list, track_index, item)
                     }
 
                 })

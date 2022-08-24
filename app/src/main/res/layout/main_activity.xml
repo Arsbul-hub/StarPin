@@ -25,11 +25,11 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <com.example.starpin.track_info_bar
+        <com.example.starpin.TrackInfoBar
             android:id="@+id/bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-        </com.example.starpin.track_info_bar>
+        </com.example.starpin.TrackInfoBar>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

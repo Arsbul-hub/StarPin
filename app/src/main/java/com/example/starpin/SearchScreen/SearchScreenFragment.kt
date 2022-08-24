@@ -114,7 +114,7 @@ class SearchScreenFragment: Fragment() {
                         h,
                         object : OnClick {
                             override fun onClickTrack(tracks_list: MutableList<Track>, track_index: Int, item: View) {
-                                requireActivity().bar.OpenBar(tracks_list, track_index, item)
+                                requireActivity().bar.open(tracks_list, track_index, item)
                             }
                         }
                     )

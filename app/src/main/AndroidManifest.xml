@@ -3,7 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.starpin">
 
-    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+<!--    <uses-permission android:name="android.permission.back"/>-->
+    <uses-permission android:name="android.Manifest.permission#INTERNET"/>
+
 
     <application
         android:allowBackup="true"
@@ -16,18 +19,6 @@
         android:theme="@style/Theme.StarPin"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
-        <activity
-            android:name=".play_lists_tracks_fragment"
-            android:exported="false" />
-        <activity
-            android:name=".PlayListItem"
-            android:exported="false" />
-        <activity
-            android:name=".UserPlayListsFragment"
-            android:exported="false" />
-        <activity
-            android:name=".TopMusicFragment"
-            android:exported="false" />
         <activity
             android:name=".track_info_bar"
             android:exported="false"

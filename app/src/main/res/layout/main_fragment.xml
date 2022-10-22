@@ -27,7 +27,7 @@
                 tools:ignore="SpeakableTextPresentCheck,SpeakableTextPresentCheck" />
 
             <TextView
-                android:id="@+id/textView2"
+                android:id="@+id/text1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="Поиск треков на ваш вкус"
@@ -51,6 +51,7 @@
                     android:id="@+id/to_top"
                     android:layout_width="match_parent"
                     android:layout_height="80dp"
+                    android:layout_marginBottom="10dp"
                     android:background="#D79C27B0"
                     android:backgroundTint="#D79C27B0"
                     app:cardBackgroundColor="@null"
@@ -58,7 +59,7 @@
                     app:cardElevation="0dp">
 
                     <TextView
-                        android:id="@+id/textView3"
+                        android:id="@+id/text2"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:gravity="center"
@@ -70,6 +71,7 @@
                     android:id="@+id/to_all_user_music"
                     android:layout_width="match_parent"
                     android:layout_height="80dp"
+                    android:layout_marginBottom="10dp"
                     android:background="#D79C27B0"
                     android:backgroundTint="#D79C27B0"
                     app:cardBackgroundColor="@null"
@@ -77,7 +79,7 @@
                     app:cardElevation="0dp">
 
                     <TextView
-                        android:id="@+id/textView3"
+                        android:id="@+id/text3"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:gravity="center"
@@ -96,7 +98,7 @@
                     app:cardElevation="0dp">
 
                     <TextView
-                        android:id="@+id/textView3"
+                        android:id="@+id/text4"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:gravity="center"

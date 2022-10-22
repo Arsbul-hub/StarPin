@@ -6,15 +6,30 @@
     android:layout_height="match_parent"
     tools:context=".TopMusicFragment">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/actions_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#C860AE"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:menu="@menu/tracks_menu"
+        app:navigationIcon="@drawable/ic_baseline_close_24"
+        tools:visibility="visible" />
+
     <LinearLayout
         android:id="@+id/all"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/actions_bar">
 
         <ImageButton
             android:id="@+id/back"

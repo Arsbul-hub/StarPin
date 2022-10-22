@@ -71,6 +71,7 @@ class UserManager {
     }
 
     fun addToPlayList(list_name: String, track: Track) {
+
         if (play_lists.contains(list_name)) {
             play_lists[list_name]!!.tracks.add(track)
 

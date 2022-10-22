@@ -5,15 +5,17 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.SeekBar
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
+
+
 import kotlinx.android.synthetic.main.track_info_bar.view.*
-import kotlinx.coroutines.delay
 
 
 var current_track: Track = Track(name = "", artist = "", avatar = "", url = "")
 var playing_state = false
-val MusicPlayer = music_player()
+
 
 interface OnNewTrackPlay {
     fun OnPlay(url: String, item: View)
@@ -28,122 +30,148 @@ class TrackInfoBar :
         attributeSet,
         defstyle
     )
+
     var progress = true
-    lateinit var on_new_track: OnNewTrackPlay
-    var complete_track_index = 0
+
+
+
+    var is_choosing_prrogress = false
 
     init {
 
         inflate(context, R.layout.track_info_bar, this)
-        visibility = View.GONE
+        //visibility = View.GONE
+        next_track.setOnClickListener {
+            Managers.musicManager.nextTrack()
+        }
+        previous_track.setOnClickListener {
+            Managers.musicManager.previousTrack()
+        }
         play_button.setOnClickListener {
 
-            if (playing_state == true) {
-                MusicPlayer.pause()
-                playing_state = false
-                play_button.setImageDrawable(
-                    ContextCompat.getDrawable(
-                        context,
-                        R.drawable.ic_baseline_play_arrow_24
-                    )
-                )
-            } else {
-                playing_state = true
-                MusicPlayer.unpause()
-                play_button.setImageDrawable(
-                    ContextCompat.getDrawable(
-                        context,
-                        R.drawable.ic_baseline_pause_24
-                    )
-                )
+            Managers.musicManager.play(Managers.musicManager.current_tracks_list!!, Managers.musicManager.current_track_index)
+        }
+        Managers.musicManager.onLoading = object: PlayListener {
+            override fun onStartLoading() {
+
+                progress_bar.progress = 0
+                loading.visibility = View.VISIBLE
+
+            }
+
+            override fun onStopLoading() {
+                loading.visibility = View.GONE
             }
         }
-        Thread {
-            setProgress()
-        }.start()
-    }
+        Managers.musicManager.setOnProgressListener(object: onProgress {
+            override fun onProgressListener(progress: Int) {
+                val pos = Managers.musicManager.getPosition()
+                val max = Managers.musicManager.getMax()
 
+                if (pos > 0 && max > 0 && !is_choosing_prrogress) {
+                    //Log.e(pos.toString(), max.toString())
+                    val prosents = pos / (max / 100)
+                    progress_bar.progress = prosents
+                }
+            }
+        })
 
-    fun open(tracks_list: MutableList<Track>, track_index: Int, item: View) {
-        val track = tracks_list[track_index]
+        progress_bar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                //Log.e("111", progress.toString())
 
-        MusicPlayer.on_complete = object : NextTrack {
-            override fun OnComplete() {
+            }
 
-                Log.e("Media player", "Callback")
-                if (track_index + 1 < tracks_list.size) {
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
 
-                    open(tracks_list, track_index + 1, item)
+                is_choosing_prrogress = true
 
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                if (Managers.musicManager.getMax() > 0) {
+                   Managers.musicManager.setPosition(progress_bar.progress * (Managers.musicManager.getMax() / 100).toInt())
                 } else {
-                    open(tracks_list, 0, item)
+                    Managers.musicManager.setPosition(0)
                 }
 
+                //}
+                is_choosing_prrogress = false
             }
-        }
-
-        Log.e("Media player", "Playing next track")
-        screens.activity.runOnUiThread {
-            visibility = View.VISIBLE
-            name.setText(track.name)
-            artist.setText(track.artist)
-            Glide.with(this).load(track.avatar).into(avatar)
-
-        }
-        if (track != current_track) {
-
-            on_new_track.OnPlay(track.url, item)
-
-            current_track = track
-            screens.activity.runOnUiThread {
-                play_button.setImageDrawable(
-                    ContextCompat.getDrawable(
-                        context,
-                        R.drawable.ic_baseline_pause_24
-                    )
-                )
-            }
-
-        } else if (playing_state == true) {
-            MusicPlayer.pause()
-            playing_state = false
-            screens.activity.runOnUiThread {
-                play_button.setImageDrawable(
-                    ContextCompat.getDrawable(
-                        context,
-                        R.drawable.ic_baseline_play_arrow_24
-                    )
-                )
-            }
-
-        } else {
-            playing_state = true
-            MusicPlayer.unpause()
-            screens.activity.runOnUiThread {
-                play_button.setImageDrawable(
-                    ContextCompat.getDrawable(
-                        context,
-                        R.drawable.ic_baseline_pause_24
-                    )
-                )
-            }
-        }
-
-
+        })
 
     }
 
-    fun setProgress() {
-        while (progress){
-            val pos = MusicPlayer.getPosition().toFloat() / 1000f
-            val max = MusicPlayer.getMax().toFloat() / 1000f
-            if (pos > 0 && max > 0){
-                Log.e(pos.toString(), max.toString())
-                val prosents = pos / (max / 100f)
-                progress_bar.progress = prosents.toInt()
-            }
-            //Log.e("position", MusicPlayer.getPosition().toString())
-//            delay(400)
+    fun open(track: Track) {
+
+
+
+
+
+
+
+        visibility = View.VISIBLE
+        name.setText(track.name)
+        artist.setText(track.artist)
+        Glide.with(this).load(track.avatar).into(avatar)
+
+
+    }
+    fun disable_all() {
+
+        play_button.isClickable = false
+        play_button.isEnabled = false
+        progress_bar.progress = 0
+        progress_bar.isClickable = false
+        progress_bar.isEnabled = false
+    }
+    fun enable_all() {
+        Screens.activity.runOnUiThread{
+            play_button.isClickable = true
+            play_button.isEnabled = true
+
+            progress_bar.isClickable = true
+            progress_bar.isEnabled = true
         }
     }
+    fun setPlayingState(is_playing: Boolean) {
+        if (is_playing) {
+
+            play_button.setImageDrawable(
+                ContextCompat.getDrawable(
+                    context,
+                    R.drawable.ic_baseline_pause_24
+                )
+            )
+        }
+        else {
+            Log.e("is_playing", "false")
+            play_button.setImageDrawable(
+                ContextCompat.getDrawable(
+                    context,
+                    R.drawable.ic_baseline_play_arrow_24
+                )
+            )
+        }
+//        } else {
+//
+//            play_button.setImageDrawable(
+//                ContextCompat.getDrawable(
+//                    context,
+//                    R.drawable.ic_baseline_play_arrow_24
+//                )
+//            )
+//
+//        }
+    }
+//
+//    fun setProgress() {
+//
+//
+//
+//        //Log.e("position", MusicPlayer.getPosition().toString())
+////            delay(400)
+//
+//
+//    }
 }

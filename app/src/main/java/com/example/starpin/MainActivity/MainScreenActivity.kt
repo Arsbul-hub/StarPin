@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 
-import com.example.starpin.common.Adapters.FragmentAdapter
+import com.example.starpin.common.Managers.FragmentManager
 
 
 import kotlinx.android.synthetic.main.main_activity.*
@@ -23,7 +23,7 @@ object User {
 }
 object Managers {
     val musicManager = MusicManager()
-
+    lateinit var fragmentManager: FragmentManager
 }
 @SuppressLint("StaticFieldLeak")
 object Screens {
@@ -31,10 +31,11 @@ object Screens {
     val main_screen = MainScreenFragment()
     val search_screen = SearchScreenFragment()
     //val list_screen = ListFragment()
-    val tracks_screen = TracksFragment()
+
     val playlists_screen = PlayListsFragment()
     val top_screen = TopScreenFragment()
-
+    val create_playlist_screen = CreatePlayListFragment()
+    val licked_tracks_screen = LikedTracksFragment()
 }
 
 object activityObjects {
@@ -51,6 +52,7 @@ class MainScreenActivity : AppCompatActivity() {
         //Log.e("11222", play_lists.toString())
         User.pref = getSharedPreferences("User", Context.MODE_PRIVATE)
         User.user_manager.loadUserData()
+        Managers.fragmentManager = FragmentManager(fragmentView.id, supportFragmentManager)
 
 //        fragment_view.adapter = FragmentAdapter(
 //            this, listOf(
@@ -67,7 +69,7 @@ class MainScreenActivity : AppCompatActivity() {
 //
 //            )
 //        )
-        supportFragmentManager.beginTransaction().replace(fr.id, Screens.main_screen).commit()
+        Managers.fragmentManager.goToFragment(Screens.main_screen)
         //lateinit var old_item: View
 
 
@@ -104,6 +106,9 @@ class MainScreenActivity : AppCompatActivity() {
         //fragment_view.setTag(4, "tracks")
 
         //fragment_view.isUserInputEnabled = false
+
+    }
+    fun tr(){
 
     }
 

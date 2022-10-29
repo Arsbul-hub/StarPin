@@ -61,11 +61,8 @@ class SearchScreenFragment: Fragment() {
 //        }
 
         fragment_view.back.setOnClickListener {
-            requireActivity().supportFragmentManager.beginTransaction().replace(requireActivity().fr.id, Screens.main_screen).commit()
-            fragment_view.search_tracks_view.adapter = TrackAdapter(
-                mutableListOf(),
-                null
-            )
+            Managers.fragmentManager.goToFragment(Screens.main_screen)
+            fragment_view.search_tracks_view.removeAllViews()
             fragment_view.search_field.setText("")
         }
         fragment_view.search_button.setOnClickListener {
@@ -98,7 +95,7 @@ class SearchScreenFragment: Fragment() {
                 val d = PlayListDialog()
                 d.on_choose = object: onClickList {
                     override fun onClick(playList: PlayList) {
-                        for (track in current_adapter.getSelectedItems()) {
+                        for (track in current_adapter.getSelectedTracks()) {
                             User.user_manager.addToPlayList(playList.name, track)
                             d.dismiss()
 

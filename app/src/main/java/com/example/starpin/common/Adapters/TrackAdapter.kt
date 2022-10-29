@@ -1,7 +1,6 @@
 package com.example.starpin
 
 import android.graphics.Color
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -37,16 +36,15 @@ class TrackAdapter(val data: MutableList<Track>, val on_click: OnClick?) :
         if (isSelect) {
             holder.itemView.setBackgroundColor(Color.parseColor("#e1a5d2"))
 
-            holder.itemView.selected.visibility = View.VISIBLE
         } else {
             holder.itemView.setBackgroundColor(Color.WHITE)
-            holder.itemView.selected.visibility = View.GONE
+
         }
 
         if (showPanel) {
-            holder.itemView.panel.visibility = View.VISIBLE
+            holder.itemView.like.visibility = View.VISIBLE
         } else {
-            holder.itemView.panel.visibility = View.GONE
+            holder.itemView.like.visibility = View.GONE
         }
 
         holder.itemView.name.setText(track.name)
@@ -77,7 +75,7 @@ class TrackAdapter(val data: MutableList<Track>, val on_click: OnClick?) :
 
         Glide.with(holder.itemView.context).load(track.avatar).into(holder.itemView.avatar)
 
-        if (User.user_manager.play_lists["Понравившиеся"]!!.tracks.contains(track)) {
+        if (track in User.user_manager.servicePlayLists["Понравившиеся"]!!.tracks) {
             holder.itemView.like.setImageDrawable(
                 ContextCompat.getDrawable(
                     holder.itemView.context,
@@ -94,8 +92,8 @@ class TrackAdapter(val data: MutableList<Track>, val on_click: OnClick?) :
         }
 
         holder.itemView.like.setOnClickListener {
-            if (User.user_manager.play_lists["Понравившиеся"]!!.tracks.contains(track)) {
-                User.user_manager.deleteFromPlayList("Понравившиеся", track)
+            if (track in User.user_manager.servicePlayLists["Понравившиеся"]!!.tracks) {
+                User.user_manager.removeFromServicePlayList("Понравившиеся", track)
                 holder.itemView.like.setImageDrawable(
                     ContextCompat.getDrawable(
                         holder.itemView.context,
@@ -103,7 +101,7 @@ class TrackAdapter(val data: MutableList<Track>, val on_click: OnClick?) :
                     )
                 )
             } else {
-                User.user_manager.addToPlayList("Понравившиеся", track)
+                User.user_manager.addToServicePlayList("Понравившиеся", track)
                 holder.itemView.like.setImageDrawable(
                     ContextCompat.getDrawable(
                         holder.itemView.context,
@@ -118,7 +116,7 @@ class TrackAdapter(val data: MutableList<Track>, val on_click: OnClick?) :
         return data.size
     }
 
-    fun getSelectedItems(): MutableList<Track> {
+    fun getSelectedTracks(): MutableList<Track> {
         val out = mutableListOf<Track>()
         for (position in selectedPositions) {
             out.add(data[position])
@@ -147,15 +145,14 @@ class TrackAdapter(val data: MutableList<Track>, val on_click: OnClick?) :
         selectedPositions.add(position)
         itemView.setBackgroundColor(Color.parseColor("#e1a5d2"))
 
-        itemView.selected.visibility = View.VISIBLE
 
     }
 
     fun deselectItem(itemView: View, position: Int) {
 
         selectedPositions.remove(position)
-
+//
         itemView.setBackgroundColor(Color.WHITE)
-        itemView.selected.visibility = View.GONE
+
     }
 }

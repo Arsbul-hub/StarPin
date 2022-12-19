@@ -2,11 +2,11 @@ package com.example.starpin
 
 import android.os.Bundle
 import android.view.*
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 
 
-import kotlinx.android.synthetic.main.main_activity.*
-import kotlinx.android.synthetic.main.main_fragment.view.*
+import kotlinx.android.synthetic.main.main_screen_fragment.view.*
 
 
 class MainScreenFragment : Fragment() {
@@ -18,39 +18,49 @@ class MainScreenFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.main_fragment, container, false)
+        val view = inflater.inflate(R.layout.main_screen_fragment, container, false)
         view.to_search.setOnClickListener {
-            Managers.fragmentManager.goToFragment(Screens.search_screen)
+            Managers.fragmentManager.goToFragment(SearchScreenFragment())
 
         }
-
-        view.to_top.setOnClickListener {
-//            screens.list_screen.load_list = object : Load {
-//                override fun load_list_items(fragment_view: View) {
-//                    TracksInTop().load(fragment_view, requireActivity())
-//
-//                }
-//
-//            }
-
+        view.to_top_music.setOnClickListener {
             Managers.fragmentManager.goToFragment(TopScreenFragment())
-
-
-
-
-
         }
-        view.to_user_play_lists.setOnClickListener {
 
-
+        view.to_user_playlists.setOnClickListener {
             Managers.fragmentManager.goToFragment(PlayListsFragment())
-
-
         }
-        view.to_liked.setOnClickListener {
-            Managers.fragmentManager.goToFragment(LikedTracksFragment())
-
+        view.to_playlist_on_day.setOnClickListener {
+            Toast.makeText(context, "Пока в разработке", Toast.LENGTH_SHORT).show()
         }
+        view.to_starting_day.setOnClickListener {
+            Toast.makeText(context, "Пока в разработке", Toast.LENGTH_SHORT).show()
+        }
+        view.to_unknown_music.setOnClickListener {
+            Toast.makeText(context, "Пока в разработке", Toast.LENGTH_SHORT).show()
+        }
+//        view.buttons_view.layoutManager =
+//            GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
+//        val list = arrayListOf<ScreenItem>(
+//            ScreenItem(image = R.drawable.top) {
+//                Managers.fragmentManager.goToFragment(
+//                    TopScreenFragment()
+//                )
+//            }
+//        )
+
+        //view.buttons_view.adapter = MainScreenAdapter(list)
+//        view.to_user_play_lists.setOnClickListener {
+//
+//
+//            Managers.fragmentManager.goToFragment(PlayListsFragment())
+//
+//
+//        }
+//        view.to_liked.setOnClickListener {
+//            Managers.fragmentManager.goToFragment(LikedTracksFragment())
+//
+//        }
         return view
     }
 

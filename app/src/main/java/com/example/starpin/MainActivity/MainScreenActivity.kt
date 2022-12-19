@@ -6,11 +6,18 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.telephony.PhoneStateListener
+import android.telephony.TelephonyCallback
+import android.telephony.TelephonyManager
+import android.util.Log
 import android.view.View
+import androidx.core.content.ContextCompat
 
-import com.example.starpin.common.Managers.FragmentManager
+import com.example.starpin.common.Managers.FragmentNavigationManager
+import com.example.starpin.common.Services.PlayService
 
 
 import kotlinx.android.synthetic.main.main_activity.*
@@ -22,21 +29,18 @@ object User {
     val user_manager = UserManager()
 }
 object Managers {
+    @SuppressLint("StaticFieldLeak")
     val musicManager = MusicManager()
-    lateinit var fragmentManager: FragmentManager
+    lateinit var fragmentManager: FragmentNavigationManager
 }
 @SuppressLint("StaticFieldLeak")
 object Screens {
-    lateinit var activity: Activity
-    val main_screen = MainScreenFragment()
-    val search_screen = SearchScreenFragment()
-    //val list_screen = ListFragment()
+    lateinit var activity: MainScreenActivity
+    val main_screen = NavigationScreenFragment()
 
-    val playlists_screen = PlayListsFragment()
-    val top_screen = TopScreenFragment()
-    val create_playlist_screen = CreatePlayListFragment()
-    val licked_tracks_screen = LikedTracksFragment()
+
 }
+
 
 object activityObjects {
     lateinit var intent: Intent
@@ -48,11 +52,12 @@ class MainScreenActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
         Screens.activity = this
+
         //
         //Log.e("11222", play_lists.toString())
         User.pref = getSharedPreferences("User", Context.MODE_PRIVATE)
         User.user_manager.loadUserData()
-        Managers.fragmentManager = FragmentManager(fragmentView.id, supportFragmentManager)
+        Managers.fragmentManager = FragmentNavigationManager(fragmentView.id, supportFragmentManager)
 
 //        fragment_view.adapter = FragmentAdapter(
 //            this, listOf(
@@ -71,7 +76,6 @@ class MainScreenActivity : AppCompatActivity() {
 //        )
         Managers.fragmentManager.goToFragment(Screens.main_screen)
         //lateinit var old_item: View
-
 
 //        bar.on_new_track = object : OnNewTrackPlay {
 //            override fun OnPlay(url: String, item: View) {
@@ -109,7 +113,7 @@ class MainScreenActivity : AppCompatActivity() {
 
     }
     fun tr(){
-
+        startService(Intent(this, PlayService::class.java))
     }
 
 }

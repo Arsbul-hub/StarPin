@@ -8,9 +8,13 @@ import android.widget.LinearLayout
 import android.widget.SeekBar
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 
 
 import kotlinx.android.synthetic.main.track_info_bar.view.*
+import kotlinx.android.synthetic.main.track_info_bar.view.artist
+import kotlinx.android.synthetic.main.track_info_bar.view.avatar
+import kotlinx.android.synthetic.main.track_info_bar.view.name
 
 
 var current_track: Track = Track(name = "", artist = "", avatar = "", url = "")
@@ -34,9 +38,8 @@ class TrackInfoBar :
     var progress = true
 
 
-
     var is_choosing_prrogress = false
-
+    val old_state = false
     init {
 
         inflate(context, R.layout.track_info_bar, this)
@@ -49,9 +52,9 @@ class TrackInfoBar :
         }
         play_button.setOnClickListener {
 
-            Managers.musicManager.play(Managers.musicManager.current_tracks_list!!, Managers.musicManager.current_track_index)
+            Managers.musicManager.switchState()
         }
-        Managers.musicManager.onLoading = object: PlayListener {
+        Managers.musicManager.onLoading = object : PlayListener {
             override fun onStartLoading() {
 
                 progress_bar.progress = 0
@@ -63,15 +66,16 @@ class TrackInfoBar :
                 loading.visibility = View.GONE
             }
         }
-        Managers.musicManager.setOnProgressListener(object: onProgress {
-            override fun onProgressListener(progress: Int) {
-                val pos = Managers.musicManager.getPosition()
-                val max = Managers.musicManager.getMax()
+        Managers.musicManager.setOnProgressListener(object : onProgress {
+            override fun onProgressListener(position: Int, max: Int) {
 
-                if (pos > 0 && max > 0 && !is_choosing_prrogress) {
+
+
+                if (position > 0 && max > 0 && !is_choosing_prrogress) {
                     //Log.e(pos.toString(), max.toString())
-                    val prosents = pos / (max / 100)
+                    val prosents = position / (max / 100)
                     progress_bar.progress = prosents
+
                 }
             }
         })
@@ -79,6 +83,7 @@ class TrackInfoBar :
         progress_bar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 //Log.e("111", progress.toString())
+
 
             }
 
@@ -89,11 +94,9 @@ class TrackInfoBar :
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                if (Managers.musicManager.getMax() > 0) {
-                   Managers.musicManager.setPosition(progress_bar.progress * (Managers.musicManager.getMax() / 100).toInt())
-                } else {
-                    Managers.musicManager.setPosition(0)
-                }
+
+                Managers.musicManager.setPosition(progress_bar.progress * (Managers.musicManager.maxPosition / 100))
+
 
                 //}
                 is_choosing_prrogress = false
@@ -105,18 +108,23 @@ class TrackInfoBar :
     fun open(track: Track) {
 
 
-
-
-
-
-
         visibility = View.VISIBLE
         name.setText(track.name)
         artist.setText(track.artist)
-        Glide.with(this).load(track.avatar).into(avatar)
+
+        if ("no-cover" in track.avatar) {
+            avatar.setImageResource(R.drawable.no_avatar)
+        } else {
+            val options: RequestOptions = RequestOptions().error(R.drawable.no_avatar)
+            Glide.with(context).load(track.avatar).apply(options)
+                .into(avatar)
+
+        }
+
 
 
     }
+
     fun disable_all() {
 
         play_button.isClickable = false
@@ -125,8 +133,9 @@ class TrackInfoBar :
         progress_bar.isClickable = false
         progress_bar.isEnabled = false
     }
+
     fun enable_all() {
-        Screens.activity.runOnUiThread{
+        Screens.activity.runOnUiThread {
             play_button.isClickable = true
             play_button.isEnabled = true
 
@@ -134,6 +143,7 @@ class TrackInfoBar :
             progress_bar.isEnabled = true
         }
     }
+
     fun setPlayingState(is_playing: Boolean) {
         if (is_playing) {
 
@@ -143,8 +153,7 @@ class TrackInfoBar :
                     R.drawable.ic_baseline_pause_24
                 )
             )
-        }
-        else {
+        } else {
             Log.e("is_playing", "false")
             play_button.setImageDrawable(
                 ContextCompat.getDrawable(

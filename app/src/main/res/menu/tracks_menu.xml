@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/overflowMenu"
+        android:icon="@drawable/ic_baseline_more_vert_24"
+        android:title=""
+        app:showAsAction="always">
+        <menu>
+            <item
+                android:id="@+id/open_playlist_choose_window"
+                android:enabled="true"
+                android:icon="@drawable/ic_baseline_playlist_add_24"
+
+                android:title="Добавить в плейлист"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/share_music"
+                android:icon="@drawable/ic_baseline_share_24"
+                android:title="Поделиться"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/delete_selected_tracks"
+                android:icon="@drawable/ic_baseline_delete_24"
+                android:title="Удалить"
+                android:visible="false"
+                app:showAsAction="never" />
+        </menu>
+    </item>
+
+
+</menu>

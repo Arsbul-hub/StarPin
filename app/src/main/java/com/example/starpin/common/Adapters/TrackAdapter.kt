@@ -1,20 +1,25 @@
 package com.example.starpin
 
+
+import android.R.attr.animation
 import android.graphics.Color
+import android.graphics.drawable.AnimatedVectorDrawable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import kotlinx.android.synthetic.main.track_item.view.*
 
 
 class TrackViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 interface OnClick {
-    fun onClickTrack(tracks_list: MutableList<Track>, track_index: Int)
-    fun onChooseTrack(tracks_list: MutableList<Track>, track_index: Int)
-    fun onDeselctTracks(tracks_list: MutableList<Track>, track_index: Int)
+    fun onClickTrack(tracks_list: MutableList<Track>, track: Track)
+    fun onChooseTrack(tracks_list: MutableList<Track>, track: Track)
+    fun onDeselectTracks(tracks_list: MutableList<Track>, track: Track)
 }
 
 class TrackAdapter(val data: MutableList<Track>, val on_click: OnClick?) :
@@ -54,7 +59,7 @@ class TrackAdapter(val data: MutableList<Track>, val on_click: OnClick?) :
                 if (position in selectedPositions) {
                     deselectItem(holder.itemView, position)
                     if (selectedPositions.isEmpty()) {
-                        on_click?.onDeselctTracks(data, position)
+                        on_click?.onDeselectTracks(data, track)
                         showItemsPanel()
                     }
                 } else {
@@ -62,18 +67,25 @@ class TrackAdapter(val data: MutableList<Track>, val on_click: OnClick?) :
                 }
 
             } else {
-                on_click?.onClickTrack(data, position)
+                on_click?.onClickTrack(data, track)
             }
         }
 
         holder.itemView.setOnLongClickListener {
             selectItem(holder.itemView, position)
             hideItemsPanel()
-            on_click?.onChooseTrack(data, position)
+            on_click?.onChooseTrack(data, track)
             return@setOnLongClickListener true
         }
+        if ("no-cover" in track.avatar) {
+            holder.itemView.avatar.setImageResource(R.drawable.no_avatar)
+        } else {
+            val options: RequestOptions = RequestOptions().error(R.drawable.no_avatar)
+            Glide.with(holder.itemView.context).load(track.avatar).apply(options)
+                .into(holder.itemView.avatar)
 
-        Glide.with(holder.itemView.context).load(track.avatar).into(holder.itemView.avatar)
+        }
+
 
         if (track in User.user_manager.servicePlayLists["Понравившиеся"]!!.tracks) {
             holder.itemView.like.setImageDrawable(
@@ -108,7 +120,9 @@ class TrackAdapter(val data: MutableList<Track>, val on_click: OnClick?) :
                         R.drawable.liked
                     )
                 )
+                    //(holder.itemView.like.drawable as Animatable?)?.start()
             }
+                //holder.itemView.like.startAnimation(AnimationUtils.loadAnimation(Screens.activity, R.anim.bonuce))
         }
     }
 

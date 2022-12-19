@@ -76,7 +76,7 @@ class UserManager {
 
 
         if (track !in servicePlayLists[list_name]!!.tracks) {
-            servicePlayLists[list_name]!!.tracks.add(track)
+            servicePlayLists[list_name]!!.tracks.add(0, track)
         }
 
 
@@ -97,11 +97,11 @@ class UserManager {
 
         if (createdPlayLists.contains(list_name)) {
             if (track !in createdPlayLists[list_name]!!.tracks) {
-                createdPlayLists[list_name]!!.tracks.add(track)
+                createdPlayLists[list_name]!!.tracks.add(0, track)
             }
 
         } else {
-            newPlayList(list_name)
+            createPlayList(list_name)
             addToPlayList(list_name, track)
 
         }
@@ -109,12 +109,14 @@ class UserManager {
 
     }
 
-    fun newPlayList(list_name: String) {
+    fun createPlayList(list_name: String, tracksList: MutableList<Track> = mutableListOf()) {
 
         if (list_name !in createdPlayLists) {
 
             createdPlayLists[list_name] = PlayList(name = list_name)
+            createdPlayLists[list_name]!!.tracks = tracksList
         }
+
         dataManager.savePlayLists("CreatedPlayLists", createdPlayLists)
     }
 

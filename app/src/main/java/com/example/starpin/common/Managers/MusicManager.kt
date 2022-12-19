@@ -1,11 +1,18 @@
 package com.example.starpin
 
 
-import android.media.AudioAttributes
-import android.media.MediaPlayer
+import android.content.Context
+import android.content.Context.TELEPHONY_SERVICE
+import android.content.Intent
+import android.os.Build
+import android.telephony.PhoneStateListener
+import android.telephony.TelephonyCallback
+import android.telephony.TelephonyManager
 import android.util.Log
-import android.view.View
+import androidx.core.content.ContextCompat.getSystemService
+import com.example.starpin.common.Services.PlayService
 import kotlinx.android.synthetic.main.main_activity.*
+import kotlinx.android.synthetic.main.track_info_bar.view.*
 
 
 interface PlayListener {
@@ -15,119 +22,123 @@ interface PlayListener {
 
 interface onProgress {
 
-    fun onProgressListener(progress: Int)
+    fun onProgressListener(position: Int, max: Int)
 }
 
-lateinit var media_player: MediaPlayer
+//lateinit var media_player: MediaPlayer
 var is_prepared: Boolean = false
 
 
 class MusicManager {
-    var current_track: Track? = null
-    var current_tracks_list: MutableList<Track>? = null
-    var current_track_index = 0
-    var playingState = "playing"
-    lateinit var on_progress: onProgress
+    companion object {
+        const val CUSTOM_METADATA_TRACK_SOURCE = "__SOURCE__"
+        const val PLAYING = 1
+        const val PAUSED = 0
+    }
+
+    var currentTrack: Track? = null
+    var currentTracksList: MutableList<Track>? = null
+
+    var playingState = PLAYING
+    lateinit var onProgress: onProgress
     lateinit var onLoading: PlayListener
+    var maxPosition: Int = 0
+    var progress: Int = 0
 
     init {
-        Thread {
-            while (true) {
-                if (::on_progress.isInitialized && playingState == "playing") {
 
-                    on_progress.onProgressListener(getPosition())
-                }
-
-            }
-        }.start()
     }
 
-    fun load_track(url: String): String {
-        if (::media_player.isInitialized) {
 
-            media_player.release()
-            is_prepared = false
-        }
-
-        try {
-            media_player = MediaPlayer()
-
-
-            media_player.setAudioAttributes(
-                AudioAttributes.Builder()
-                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .build()
-            )
-            media_player.setDataSource(url)
-
-            //media_player.isLooping = false
-            media_player.setOnPreparedListener {
-
-                is_prepared = true
+//        Thread {
+//            while (true) {
+//                if (::onProgress.isInitialized && playingState == "playing") {
+//
+//                    onProgress.onProgressListener(getPosition())
+//                }
+//
+//            }
+//        }.start()
 
 
+//    fun loadTrack(url: String, fuc: () -> Unit = {}): String {
+//        if (::media_player.isInitialized) {
+//
+//            media_player.release()
+//            is_prepared = false
+//        }
+//
+//        try {
+//            media_player = MediaPlayer()
+//
+//
+//            media_player.setAudioAttributes(
+//                AudioAttributes.Builder()
+//                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+//                    .build()
+//            )
+//            media_player.setDataSource(url)
+//
+//            //media_player.isLooping = false
+//            media_player.setOnPreparedListener {
+//
+//                is_prepared = true
+//
+//
+//            }
+//            media_player.setOnCompletionListener {
+//
+//                fuc()
+//                //if (getPosition() == getMax()) {
+//                //nextTrack()
+//                //}
+//
+//            }
+//            media_player.prepare()
+//            return "Loaded"
+//        } catch (t: Throwable) {
+//            return t.message!!
+//        }
+//    }
+
+    fun play(tracks_list: MutableList<Track>, track: Track) {
+
+        if (track != currentTrack) {
+            currentTracksList = tracks_list
+
+            currentTrack = track
+            Log.e("tests", "ffff")
+            updateBar()
+
+
+            //Thread {
+
+
+            try {
+
+                val intent = Intent(Screens.activity, PlayService::class.java)
+                //            intent.putExtra("currentTrackIndex", currentTrackIndex)
+                //            intent.putExtra("currentTracksList", ArrayList(currentTracksList))
+
+
+                intent.action = "new"
+
+                //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                Screens.activity.startService(intent)
+
+            } catch (e: Exception) {
+                Log.e("errro", e.message.toString())
             }
-            media_player.setOnCompletionListener {
 
 
-                //if (getPosition() == getMax()) {
-                nextTrack()
-                //}
-
-            }
-            media_player.prepare()
-            return "Loaded"
-        }
-        catch (t: Throwable){
-            return t.message!!
-        }
-    }
-
-    fun play(tracks_list: MutableList<Track>, index: Int) {
-        val track = tracks_list[index]
-
-        Screens.activity.bar.open(track)
-        if (track != current_track) {
-            current_tracks_list = tracks_list
-            current_track_index = index
-            current_track = track
-
-            if (::media_player.isInitialized && media_player.isPlaying) {
-                media_player.stop()
-            }
-
-
-
-            Thread {
-                Screens.activity.runOnUiThread {
-                    onLoading.onStartLoading()
-                }
-
-                val load_status = load_track(track.url)
-
-                Log.i("Load Status:", load_status)
-
-                if (playingState == "playing") {
-                    media_player.start()
-
-
-                }
-                Screens.activity.runOnUiThread {
-                    onLoading.onStopLoading()
-                }
-
-
-            }.start()
-
-
-            ///playingState = "playing"
         } else {
-            if (playingState == "playing") {
+            if (playingState == PLAYING) {
                 pause()
+
                 Screens.activity.bar.setPlayingState(false)
 
 
-            } else if (playingState == "paused") {
+            } else if (playingState == PAUSED) {
                 unpause()
                 Screens.activity.bar.setPlayingState(true)
 
@@ -139,71 +150,119 @@ class MusicManager {
 
     fun pause() {
         if (is_prepared) {
-            media_player.pause()
+            //media_player.pause()
+            //Screens.activity.stopService(Intent(Screens.activity, PlayService::class.java))
+            val intent = Intent(Screens.activity, PlayService::class.java)
+//            intent.putExtra("currentTrackIndex", currentTrackIndex)
+//            intent.putExtra("currentTracksList", ArrayList(currentTracksList))
 
+            intent.action = "pause"
+            //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Screens.activity.startService(intent)
+            //}
         }
-        playingState = "paused"
+        playingState = PAUSED
+        updateBar()
 
     }
 
     fun unpause() {
         if (is_prepared) {
-            media_player.start()
+            //media_player.start()
+            val intent = Intent(Screens.activity, PlayService::class.java)
+//            intent.putExtra("currentTrackIndex", currentTrackIndex)
+//            intent.putExtra("currentTracksList", ArrayList(currentTracksList))
 
+            intent.action = "unpause"
+            Screens.activity.startService(intent)
         }
-        playingState = "playing"
+        playingState = PLAYING
+        updateBar()
     }
 
-    fun getPosition(): Int {
-        var out: Int = 0
+    fun switchState() {
+        if (playingState == PLAYING) {
+            pause()
 
-        if (::media_player.isInitialized && is_prepared) {
-            try {
-                out = media_player.currentPosition
-            } catch (e: IllegalStateException) {
-                out = 0
-            }
+            Screens.activity.bar.setPlayingState(false)
+
+
+        } else if (playingState == PAUSED) {
+            unpause()
+            Screens.activity.bar.setPlayingState(true)
+
         }
 
-        return out
     }
 
-    fun setPosition(sec: Int) {
-        if (::media_player.isInitialized && is_prepared) {
-            media_player.seekTo(sec)
-        }
+//    fun getPosition(): Int {
+//        var out: Int = 0
+//
+//        if (::media_player.isInitialized && is_prepared) {
+//            try {
+//                out = media_player.currentPosition
+//            } catch (e: IllegalStateException) {
+//                out = 0
+//            }
+//        }
+//
+//        return out
+//    }
+
+    fun setPosition(msec: Int) {
+        val intent = Intent(Screens.activity, PlayService::class.java)
+        intent.putExtra("position", msec)
+        intent.action = "seekTo"
+
+        //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        Screens.activity.startService(intent)
+        //}
     }
 
-    fun getMax(): Int {
-        var out: Int = 0
-        if (::media_player.isInitialized && is_prepared) {
-            try {
-                out = media_player.duration
-            } catch (e: IllegalStateException) {
-                out = 0
-            }
-        }
-        return out
-    }
 
-    fun nextTrack() {
-        if (current_track_index + 1 != current_tracks_list!!.size) {
-            play(current_tracks_list!!, current_track_index + 1)
+    fun nextTrack(): Track {
+
+        if (getCurrentTrackPosition() + 1 != currentTracksList!!.size) {
+            play(currentTracksList!!, currentTracksList!![getCurrentTrackPosition() + 1])
+            return currentTrack!!
         } else {
-            play(current_tracks_list!!, 0)
+            play(currentTracksList!!, currentTracksList!!.first())
+            return currentTrack!!
         }
+
     }
 
-    fun previousTrack() {
-        if (current_track_index - 1 >= 0) {
-            play(current_tracks_list!!, current_track_index - 1)
+    fun previousTrack(): Track {
+
+        if (getCurrentTrackPosition() - 1 >= 0) {
+            play(currentTracksList!!, currentTracksList!![getCurrentTrackPosition() - 1])
+            return currentTrack!!
         } else {
-            play(current_tracks_list!!, current_tracks_list!!.size - 1)
+            play(currentTracksList!!, currentTracksList!![currentTracksList!!.size - 1])
+            return currentTrack!!
         }
+
     }
 
     fun setOnProgressListener(listener: onProgress) {
-        on_progress = listener
+        onProgress = listener
     }
 
+    fun getCurrentTrackPosition(): Int {
+        return currentTracksList!!.indexOf(currentTrack)
+    }
+
+    private fun updateBar() {
+        try {
+            Screens.activity.bar.open(currentTrack!!)
+            if (playingState == PLAYING) {
+                Screens.activity.bar.play_button.setImageResource(R.drawable.ic_baseline_pause_24)
+            } else {
+                Screens.activity.bar.play_button.setImageResource(R.drawable.ic_baseline_play_arrow_24)
+            }
+
+        } catch (e: Exception) {
+
+        }
+    }
 }

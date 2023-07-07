@@ -1,22 +1,32 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/Bulavka/app/src/main/res/drawable-v24/liked.xml" value="0.298" />
         <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/Bulavka/app/src/main/res/drawable-v24/no_liked.xml" value="0.298" />
+        <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/Bulavka/app/src/main/res/drawable/add_playlist.xml" value="0.298" />
+        <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/Bulavka/app/src/main/res/drawable/ic_add_playlist.xml" value="0.298" />
         <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/Bulavka/app/src/main/res/drawable/ic_baseline_audiotrack_24.xml" value="0.298" />
         <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/Bulavka/app/src/main/res/drawable/ic_baseline_check_circle_24.xml" value="0.2885" />
+        <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/Bulavka/app/src/main/res/drawable/ic_baseline_search_24.xml" value="0.298" />
+        <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/Bulavka/app/src/main/res/drawable/ic_baseline_wifi_tethering_error_24.xml" value="0.298" />
         <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/Bulavka/app/src/main/res/drawable/like_animated.xml" value="0.298" />
+        <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/Bulavka/app/src/main/res/drawable/liked.xml" value="0.1525" />
+        <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/Bulavka/app/src/main/res/drawable/liked_ava.xml" value="0.1525" />
+        <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/Bulavka/app/src/main/res/drawable/no_liked.xml" value="0.297" />
         <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/Bulavka/app/src/main/res/layout/create_playlist_fragment.xml" value="0.29322916666666665" />
+        <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/Bulavka/app/src/main/res/layout/create_playlist_item.xml" value="0.7854545182157163" />
+        <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/Bulavka/app/src/main/res/layout/edit_playlist_fragment.xml" value="0.2942708333333333" />
+        <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/Bulavka/app/src/main/res/layout/liked_fragment.xml" value="0.4363636212309535" />
         <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/Bulavka/app/src/main/res/layout/list_fragment.xml" value="0.290625" />
         <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/Bulavka/app/src/main/res/layout/main_activity.xml" value="0.2879999900124293" />
         <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/Bulavka/app/src/main/res/layout/main_fragment.xml" value="0.2942708333333333" />
-        <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/Bulavka/app/src/main/res/layout/main_screen_fragment.xml" value="0.2942708333333333" />
+        <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/Bulavka/app/src/main/res/layout/main_screen_fragment.xml" value="0.4363636212309535" />
         <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/Bulavka/app/src/main/res/layout/main_screen_item.xml" value="0.29322916666666665" />
+        <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/Bulavka/app/src/main/res/layout/my_dialog.xml" value="0.2942708333333333" />
         <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/Bulavka/app/src/main/res/layout/navigation_fragment.xml" value="0.2942708333333333" />
         <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/Bulavka/app/src/main/res/layout/play_list_fragment.xml" value="0.2942708333333333" />
-        <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/Bulavka/app/src/main/res/layout/play_list_item.xml" value="0.7854545182157163" />
+        <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/Bulavka/app/src/main/res/layout/play_list_item.xml" value="0.2879999900124293" />
         <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/Bulavka/app/src/main/res/layout/playlist_dialog.xml" value="0.2942708333333333" />
         <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/Bulavka/app/src/main/res/layout/search_fragment.xml" value="0.25" />
         <entry key="..\:/Users/Arsbul Programming/AndroidStudioProjects/Bulavka/app/src/main/res/layout/top_fragment.xml" value="0.2942708333333333" />
@@ -51,7 +61,7 @@
     </option>
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" project-jdk-name="jbr-17" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

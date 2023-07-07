@@ -8,7 +8,7 @@
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/actions_bar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:background="#C860AE"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
@@ -60,7 +60,7 @@
             android:layout_height="45dp"
             android:ems="10"
             android:hint="Поиск треков на ваш вкус"
-            android:inputType="textPersonName"
+            android:inputType="text|textCapWords"
             android:textColorHint="#757575"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -90,7 +90,7 @@
         app:layout_constraintTop_toBottomOf="@+id/navigation_bar">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/list_view"
+            android:id="@+id/tracks_list_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:layout_editor_absoluteX="-16dp" />

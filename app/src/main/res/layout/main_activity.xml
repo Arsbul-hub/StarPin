@@ -16,15 +16,15 @@
 
     </FrameLayout>
 
-    <com.example.starpin.TrackInfoBar
+    <com.star_wormwood.bulavka.common.TrackInfoBar
         android:id="@+id/bar"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        tools:visibility="visible">
+        tools:visibility="visible" />
 
-    </com.example.starpin.TrackInfoBar>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -22,15 +22,20 @@ import com.star_wormwood.bulavka.common.Dialogs.PlayListDialog
 import com.star_wormwood.bulavka.common.Items.PlayList
 import com.star_wormwood.bulavka.common.Items.Track
 import com.star_wormwood.bulavka.common.PlaylistListener
+
 import com.star_wormwood.bulavka.common.search_music
 import kotlinx.android.synthetic.main.search_fragment.view.*
+
 
 
 class SearchScreenFragment(var adapter: TrackAdapter? = null, var selected: Boolean = false) :
     Fragment() {
     lateinit var old_item: View
 
-
+    var prepearingAdapter = false
+    var step = 0
+    var start = 0
+    var max = 0
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -120,10 +125,26 @@ class SearchScreenFragment(var adapter: TrackAdapter? = null, var selected: Bool
 
         fragment_view.tracks_list_view.addOnScrollListener(object :
             RecyclerView.OnScrollListener() {
+            @SuppressLint("NotifyDataSetChanged")
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
-                if (!recyclerView.canScrollVertically(1) && newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    Log.e("fsese", "end")
+                if (!recyclerView.canScrollVertically(1)) {
+
+                    if (!prepearingAdapter && start < max) {
+                        prepearingAdapter = true
+                        start += step
+                        Thread {
+
+                            val d = search_music(fragment_view.search_field.text.toString(), start).first //search_music(view.search_field.text.toString(), context)
+
+                            adapter!!.list = adapter!!.list.plus(d)
+
+                            runOnUiThread {
+                                fragment_view.tracks_list_view.adapter!!.notifyDataSetChanged()
+                            }
+                            prepearingAdapter = false
+                        }.start()
+                    }
                 }
             }
         })
@@ -145,7 +166,7 @@ class SearchScreenFragment(var adapter: TrackAdapter? = null, var selected: Bool
         }
 
         fragment_view.actions_bar.setOnMenuItemClickListener {
-            Log.e("ids", it.itemId.toString())
+
             if (it.itemId == R.id.open_playlist_choose_window) {
                 val d = PlayListDialog(object : PlaylistListener {
                     override fun onClickAdd() {
@@ -227,15 +248,16 @@ class SearchScreenFragment(var adapter: TrackAdapter? = null, var selected: Bool
 
 
         val lt = Thread {
-            val out = search_music(view.search_field.text.toString(), context)
+            val out = search_music(view.search_field.text.toString())
+            step = out.second
 
+            max = out.third
 
-
-            if (out.isNotEmpty()) {
+            if (out.first.isNotEmpty()) {
                 runOnUiThread {
 
                     adapter = TrackAdapter(
-                        out,
+                        out.first,
                         object : OnClick {
                             override fun onClickTrack(
                                 tracks_list: List<Track>,

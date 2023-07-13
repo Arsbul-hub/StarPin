@@ -50,14 +50,16 @@ fun checkForInternet(context: Context): Boolean {
     }
 }
 
-fun search_music(req: String, context: Context?): List<Track> {
+fun search_music(req: String, start: Int = 0): Triple<List<Track>, Int, Int> {
+    var siteData = Jsoup.connect("${domain}/search/start/$start?q=" + req.replace(" ", "+")).get().html()
 
-    var pagination_list = Jsoup.connect("${domain}/search?q=$req").get().html()
     val out_list = mutableListOf<Track>()
+    var max = 48
+    var step = 48
 //    NumberFormatException
 
-    if ("<li class=\"pagination__item active\"><b class=\"pagination__link pagination__btn active\">1</b></li>" in pagination_list) { // если количество треков не превышает 48 штук на странице
-
+    if ("<li class=\"pagination__item active\"><b class=\"pagination__link pagination__btn active\">1</b></li>" in siteData) { // если количество треков не превышает 48 штук на странице
+        var pagination_list = siteData
         val pagination_numbers = mutableListOf<Int>()
         pagination_list =
             pagination_list.substringAfter("""<li class="pagination__item active"><b class="pagination__link pagination__btn active">1</b></li>""")
@@ -66,7 +68,7 @@ fun search_music(req: String, context: Context?): List<Track> {
             """<li class="pagination__item"><a class="pagination__link pagination__btn" href="/search/start/""",
             ""
         )
-        Log.e("ffff", pagination_list.split("</a></li>").toString())
+
 
         for (i in pagination_list.split("</a></li>")) { // adding number of pages to list
 
@@ -76,143 +78,85 @@ fun search_music(req: String, context: Context?): List<Track> {
             }
 
         }
-        var last: Int = pagination_numbers.last()
-        for (p in 0..last step pagination_numbers.first()) {
+        max = pagination_numbers.last()
+        step = pagination_numbers.first()
 
-
-            var dt =
-                Jsoup.connect("${domain}/search/start/$p?q=" + req.replace(" ", "+")).get()
-                    .html()
-            dt = dt.substringAfter("""<div class="p-info p-inner">""")
-            dt = dt.substringAfter("""<ul class="tracks__list">""")
-            val li = dt.split("""<li class="tracks__item track mustoggler"""")
-
-
-
-            for (i in li) {
-                val track: Track = Track()
-                if ("""<div class="track__title">""" in i) {
-                    var j = i.substringAfter("""<div class="track__title">""")
-                    j = j.replace("""<div class="track__title">""", "")
-                    j = j.substringBefore("</div>")
-                    j = j.replace("\n", "").replace("  ", "").substringAfter(" ")
-                    track.name = j
-
-                    //Log.e("names", i)
-                }
-                if ("<div class=\"track__desc\">" in i) {
-                    var j = i.substringAfter("<div class=\"track__desc\">")
-                        .replace("<div class=\"track__desc\">", "")
-                    j = j.substringBefore("</div>")
-                    j = j.replace("\n", "").replace("            ", "")
-                        .replace("           ", "")
-                    //Log.e("123", j)
-                    track.artist = j
-                }
-                if ("<a data-nopjax href=\"" in i) {
-                    var j =
-                        i.substringAfter("<a data-nopjax href=\"")
-                            .replace("<a data-nopjax href=\"", "")
-                    j = j.substringBefore("\" class=\"track__download-btn\"></a>")
-                    j = j.replace("\n", "").replace("  ", "").substringAfter(" ")
-                    track.url = j
-                }
-
-                if ("""<div class="track__img" style="background-image: url('""" in i) {
-                    var j =
-                        i.substringAfter("""<div class="track__img" style="background-image: url('""")
-                            .replace(
-                                """<div class="track__img" style="background-image: url('""",
-                                ""
-                            )
-                    j = j.substringBefore("""');"></div>""")
-                    j = j.replace("\n", "").replace("  ", "").substringAfter(" ")
-                    j = domain + j
-                    track.avatar = j
-                }
-                if (track.isFull()) {
-                    //Log.e("rgfdf", dict.toString())
-                    out_list.add(track)
-                    //dict.clear()
-                }
-            }
-        }
-
-    } else {
-
-
-        var dt =
-            Jsoup.connect("${domain}/search?q=" + req.replace(" ", "+")).get().html()
-        dt = dt.substringAfter("""<div class="p-info p-inner">""")
-        dt = dt.substringAfter("""<ul class="tracks__list">""")
-        val li = dt.split("""<li class="tracks__item track mustoggler"""")
-
-
-
-        for (i in li) {
-            val track: Track = Track()
-            if ("""<div class="track__title">""" in i) {
-                var j = i.substringAfter("""<div class="track__title">""")
-                j = j.replace("""<div class="track__title">""", "")
-                j = j.substringBefore("</div>")
-                j = j.replace("\n", "").replace("  ", "").substringAfter(" ")
-                track.name = j
-
-                //Log.e("names", i)
-            }
-            if ("<div class=\"track__desc\">" in i) {
-                var j = i.substringAfter("<div class=\"track__desc\">")
-                    .replace("<div class=\"track__desc\">", "")
-                j = j.substringBefore("</div>")
-                j = j.replace("\n", "").replace("            ", "").replace("           ", "")
-                //Log.e("123", j)
-                track.artist = j
-            }
-            if ("<a data-nopjax href=\"" in i) {
-                var j =
-                    i.substringAfter("<a data-nopjax href=\"")
-                        .replace("<a data-nopjax href=\"", "")
-                j = j.substringBefore("\" class=\"track__download-btn\"></a>")
-                j = j.replace("\n", "").replace("  ", "").substringAfter(" ")
-                track.url = j
-            }
-
-            if ("""<div class="track__img" style="background-image: url('""" in i) {
-                var j =
-                    i.substringAfter("""<div class="track__img" style="background-image: url('""")
-                        .replace(
-                            """<div class="track__img" style="background-image: url('""",
-                            ""
-                        )
-                j = j.substringBefore("""');"></div>""")
-                j = j.replace("\n", "").replace("  ", "").substringAfter(" ")
-                j = domain + j
-                track.avatar = j
-            }
-            if (track.isFull()) {
-                //Log.e("rgfdf", dict.toString())
-                out_list.add(track)
-                //dict.clear()
-            }
-
-        }
     }
 
 
+    siteData = siteData.substringAfter("""<div class="p-info p-inner">""")
+    siteData = siteData.substringAfter("""<ul class="tracks__list">""")
+    val li = siteData.split("""<li class="tracks__item track mustoggler"""")
 
 
-    return out_list
+
+    for (i in li) {
+        val track: Track = Track()
+        if ("""<div class="track__title">""" in i) {
+            var j = i.substringAfter("""<div class="track__title">""")
+            j = j.replace("""<div class="track__title">""", "")
+            j = j.substringBefore("</div>")
+            j = j.replace("\n", "").replace("  ", "").substringAfter(" ")
+            track.name = j
+
+            //Log.e("names", i)
+        }
+        if ("<div class=\"track__desc\">" in i) {
+            var j = i.substringAfter("<div class=\"track__desc\">")
+                .replace("<div class=\"track__desc\">", "")
+            j = j.substringBefore("</div>")
+            j = j.replace("\n", "").replace("            ", "").replace("           ", "")
+            //Log.e("123", j)
+            track.artist = j
+        }
+        if ("<a data-nopjax href=\"" in i) {
+            var j =
+                i.substringAfter("<a data-nopjax href=\"")
+                    .replace("<a data-nopjax href=\"", "")
+            j = j.substringBefore("\" class=\"track__download-btn\"></a>")
+            j = j.replace("\n", "").replace("  ", "").substringAfter(" ")
+            track.url = j
+        }
+
+        if ("""<div class="track__img" style="background-image: url('""" in i) {
+            var j =
+                i.substringAfter("""<div class="track__img" style="background-image: url('""")
+                    .replace(
+                        """<div class="track__img" style="background-image: url('""",
+                        ""
+                    )
+            j = j.substringBefore("""');"></div>""")
+            j = j.replace("\n", "").replace("  ", "").substringAfter(" ")
+            j = domain + j
+            track.avatar = j
+        }
+        if (track.isFull()) {
+            //Log.e("rgfdf", dict.toString())
+            out_list.add(track)
+            //dict.clear()
+        }
+
+    }
+
+
+    return Triple(out_list, step, max)
 
 
 }
 
 
-fun get_top(): List<Track> {
-    var pagination_list = Jsoup.connect("${domain}/songs/top-today").get().html()
+fun get_top(start: Int = 0, maxListLeng: Int? = null): Triple<List<Track>, Int, Int> {
+
+
+    var siteData = Jsoup.connect("${domain}/songs/top-today/start/$start").get().html()
     val out_top = mutableListOf<Track>()
-    if ("<li class=\"pagination__item active\"><b class=\"pagination__link pagination__btn active\">1</b></li>" in pagination_list) {
+    var max: Int = 48
+    var step: Int = 48
+    Log.e("test", maxListLeng.toString())
+    if ("<li class=\"pagination__item active\"><b class=\"pagination__link pagination__btn active\">1</b></li>" in siteData) {
 
-
+        val pagination_numbers = mutableListOf<Int>()
+        var pagination_list = siteData
         pagination_list =
             pagination_list.substringAfter("""<li class="pagination__item active"><b class="pagination__link pagination__btn active">1</b></li>""")
         pagination_list = pagination_list.substringBefore("</ul>")
@@ -220,7 +164,7 @@ fun get_top(): List<Track> {
             """<li class="pagination__item"><a class="pagination__link pagination__btn" href="/songs/top-today/start/""",
             ""
         )
-        val pagination_numbers = mutableListOf<Int>()
+
         for (i in pagination_list.split("</a></li>")) { // adding number of pages to list
             val s = i.substringBefore("""">""").replace("\\s".toRegex(), "")
             if (s.isNotEmpty()) {
@@ -229,129 +173,78 @@ fun get_top(): List<Track> {
 
         }
 
+        step = pagination_numbers.first()
+        max = pagination_numbers.last()
 
-        for (p in 0..pagination_numbers.last() step pagination_numbers.first()) {
-            var dt = Jsoup.connect("${domain}/songs/top-today/start/$p").get().html()
 
+    }
 
 //    var dt = Jsoup.connect("${domain}/songs/top-today").get().html()
 
-            dt = dt.substringAfter("""<div class="p-info p-inner">""")
-            dt = dt.substringAfter("""<ul class="tracks__list">""")
-            val li = dt.split("""<li class="tracks__item track mustoggler"""")
+    siteData = siteData.substringAfter("""<div class="p-info p-inner">""")
+    siteData = siteData.substringAfter("""<ul class="tracks__list">""")
+    val li = siteData.split("""<li class="tracks__item track mustoggler"""")
 
 
 
-            for (i in li) {
-                val track = Track()
-                if ("""<div class="track__title">""" in i) {
-                    var j = i.substringAfter("""<div class="track__title">""")
-                    j = j.replace("""<div class="track__title">""", "")
-                    j = j.substringBefore("</div>")
-                    j = j.replace("\n", "").replace("  ", "").substringAfter(" ")
-                    track.name = j
+    for (i in li) {
+        val track = Track()
+        if ("""<div class="track__title">""" in i) {
+            var j = i.substringAfter("""<div class="track__title">""")
+            j = j.replace("""<div class="track__title">""", "")
+            j = j.substringBefore("</div>")
+            j = j.replace("\n", "").replace("  ", "").substringAfter(" ")
+            track.name = j
 
-                    //Log.e("names", i)
-                }
-                if ("<div class=\"track__desc\">" in i) {
-                    var j = i.substringAfter("<div class=\"track__desc\">")
-                        .replace("<div class=\"track__desc\">", "")
-                    j = j.substringBefore("</div>")
-                    j = j.replace("\n", "").replace("            ", "").replace("           ", "")
-                    //Log.e("123", j)
-                    track.artist = j
-                }
-                if ("<a data-nopjax href=\"" in i) {
-                    var j =
-                        i.substringAfter("<a data-nopjax href=\"")
-                            .replace("<a data-nopjax href=\"", "")
-                    j = j.substringBefore("\" class=\"track__download-btn\"></a>")
-                    j = j.replace("\n", "").replace("  ", "").substringAfter(" ")
-                    track.url = j
-                }
-
-                if ("""<div class="track__img" style="background-image: url('""" in i) {
-                    var j =
-                        i.substringAfter("""<div class="track__img" style="background-image: url('""")
-                            .replace(
-                                """<div class="track__img" style="background-image: url('""",
-                                ""
-                            )
-                    j = j.substringBefore("""');"></div>""")
-                    j = j.replace("\n", "").replace("  ", "").substringAfter(" ")
-                    j = domain + j
-                    track.avatar = j
-                }
-                if (track.isFull()) {
-                    //Log.e("rgfdf", dict.toString())
-                    out_top.add(track)
-                    //dict.clear()
-                }
-            }
+            //Log.e("names", i)
+        }
+        if ("<div class=\"track__desc\">" in i) {
+            var j = i.substringAfter("<div class=\"track__desc\">")
+                .replace("<div class=\"track__desc\">", "")
+            j = j.substringBefore("</div>")
+            j = j.replace("\n", "").replace("            ", "")
+                .replace("           ", "")
+            //Log.e("123", j)
+            track.artist = j
+        }
+        if ("<a data-nopjax href=\"" in i) {
+            var j =
+                i.substringAfter("<a data-nopjax href=\"")
+                    .replace("<a data-nopjax href=\"", "")
+            j = j.substringBefore("\" class=\"track__download-btn\"></a>")
+            j = j.replace("\n", "").replace("  ", "").substringAfter(" ")
+            track.url = j
         }
 
-    } else {
-        var dt = Jsoup.connect("${domain}/songs/top-today/").get().html()
+        if ("""<div class="track__img" style="background-image: url('""" in i) {
+            var j =
+                i.substringAfter("""<div class="track__img" style="background-image: url('""")
+                    .replace(
+                        """<div class="track__img" style="background-image: url('""",
+                        ""
+                    )
+            j = j.substringBefore("""');"></div>""")
+            j = j.replace("\n", "").replace("  ", "").substringAfter(" ")
+            j = domain + j
+            track.avatar = j
+        }
 
 
-//    var dt = Jsoup.connect("${domain}/songs/top-today").get().html()
 
-        dt = dt.substringAfter("""<div class="p-info p-inner">""")
-        dt = dt.substringAfter("""<ul class="tracks__list">""")
-        val li = dt.split("""<li class="tracks__item track mustoggler"""")
+        if (track.isFull() && maxListLeng != null && out_top.size < maxListLeng) {
 
+            out_top.add(track)
+            //dict.clear()
+        } else if (track.isFull() && maxListLeng == null) {
 
-
-        for (i in li) {
-            val track = Track()
-            if ("""<div class="track__title">""" in i) {
-                var j = i.substringAfter("""<div class="track__title">""")
-                j = j.replace("""<div class="track__title">""", "")
-                j = j.substringBefore("</div>")
-                j = j.replace("\n", "").replace("  ", "").substringAfter(" ")
-                track.name = j
-
-                //Log.e("names", i)
-            }
-            if ("<div class=\"track__desc\">" in i) {
-                var j = i.substringAfter("<div class=\"track__desc\">")
-                    .replace("<div class=\"track__desc\">", "")
-                j = j.substringBefore("</div>")
-                j = j.replace("\n", "").replace("            ", "").replace("           ", "")
-                //Log.e("123", j)
-                track.artist = j
-            }
-            if ("<a data-nopjax href=\"" in i) {
-                var j =
-                    i.substringAfter("<a data-nopjax href=\"")
-                        .replace("<a data-nopjax href=\"", "")
-                j = j.substringBefore("\" class=\"track__download-btn\"></a>")
-                j = j.replace("\n", "").replace("  ", "").substringAfter(" ")
-                track.url = j
-            }
-
-            if ("""<div class="track__img" style="background-image: url('""" in i) {
-                var j =
-                    i.substringAfter("""<div class="track__img" style="background-image: url('""")
-                        .replace(
-                            """<div class="track__img" style="background-image: url('""",
-                            ""
-                        )
-                j = j.substringBefore("""');"></div>""")
-                j = j.replace("\n", "").replace("  ", "").substringAfter(" ")
-                j = domain + j
-                track.avatar = j
-            }
-            if (track.isFull()) {
-                //Log.e("rgfdf", dict.toString())
-                out_top.add(track)
-                //dict.clear()
-            }
+            out_top.add(track)
         }
 
     }
 
-    return out_top
+
+    return Triple(out_top, step, max)
+
 
 }
 

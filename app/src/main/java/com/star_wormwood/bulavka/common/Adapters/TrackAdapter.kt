@@ -22,13 +22,11 @@ interface OnClick {
     fun onDeselectTracks(tracks_list: List<Track>, track: Track)
 }
 
-class TrackAdapter(val list: List<Track>, val on_click: OnClick?) :
+class TrackAdapter(var list: List<Track>, val on_click: OnClick?) :
     RecyclerView.Adapter<TrackViewHolder>() {
 
     val selectedPositions = mutableListOf<Int>()
     var showPanel = true
-    val start = 0
-    val step = 20
 
 //    init {
 //        if (start + 20 < list.size) {

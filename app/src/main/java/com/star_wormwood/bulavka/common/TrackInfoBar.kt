@@ -7,6 +7,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
+import android.view.animation.AnimationUtils
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import androidx.core.content.ContextCompat
@@ -150,8 +151,12 @@ class TrackInfoBar :
 
     fun open(track: Track) {
 
+        if (visibility == View.GONE) {
+            visibility = View.VISIBLE
+            startAnimation(AnimationUtils.loadAnimation(context, R.anim.scale_in))
+        }
 
-        visibility = View.VISIBLE
+
         connection_error.visibility = View.INVISIBLE
         name.text = track.name
         artist.text = track.artist

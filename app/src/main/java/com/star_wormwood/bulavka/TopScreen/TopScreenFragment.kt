@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -21,6 +22,7 @@ import com.star_wormwood.bulavka.common.Items.PlayList
 import com.star_wormwood.bulavka.common.Items.Track
 import com.star_wormwood.bulavka.common.PlaylistListener
 import com.star_wormwood.bulavka.common.get_top
+
 import kotlinx.android.synthetic.main.top_fragment.view.actions_bar
 import kotlinx.android.synthetic.main.top_fragment.view.back
 import kotlinx.android.synthetic.main.top_fragment.view.connection_error
@@ -28,6 +30,7 @@ import kotlinx.android.synthetic.main.top_fragment.view.loading
 import kotlinx.android.synthetic.main.top_fragment.view.navigation_bar
 import kotlinx.android.synthetic.main.top_fragment.view.title
 import kotlinx.android.synthetic.main.top_fragment.view.tracks_list_view
+import java.lang.Thread.UncaughtExceptionHandler
 
 
 class TopScreenFragment(var adapter: TrackAdapter? = null, var selected: Boolean = false) :
@@ -77,8 +80,13 @@ class TopScreenFragment(var adapter: TrackAdapter? = null, var selected: Boolean
                             track: Track
                         ) {
                             fragment_view.navigation_bar.visibility = View.GONE
+                            fragment_view.navigation_bar.startAnimation(AnimationUtils.loadAnimation(context, R.anim.slide_bottom))
                             //Managers.musicManager.pause()
                             fragment_view.actions_bar.visibility = View.VISIBLE
+
+                            fragment_view.actions_bar.startAnimation(AnimationUtils.loadAnimation(context, R.anim.slide_up))
+
+
                             selected = true
 
                         }
@@ -89,7 +97,12 @@ class TopScreenFragment(var adapter: TrackAdapter? = null, var selected: Boolean
                         ) {
 
                             fragment_view.navigation_bar.visibility = View.VISIBLE
+                            fragment_view.navigation_bar.startAnimation(AnimationUtils.loadAnimation(context, R.anim.slide_up))
                             fragment_view.actions_bar.visibility = View.GONE
+
+                            fragment_view.actions_bar.startAnimation(AnimationUtils.loadAnimation(context, R.anim.slide_bottom))
+
+
                             selected = false
 
                         }
@@ -111,6 +124,7 @@ class TopScreenFragment(var adapter: TrackAdapter? = null, var selected: Boolean
 
             fragment_view.tracks_list_view.adapter = adapter
         }
+
         fragment_view.tracks_list_view.addOnScrollListener(object :
             RecyclerView.OnScrollListener() {
             @SuppressLint("NotifyDataSetChanged")
@@ -118,10 +132,12 @@ class TopScreenFragment(var adapter: TrackAdapter? = null, var selected: Boolean
                 super.onScrollStateChanged(recyclerView, newState)
                 if (!recyclerView.canScrollVertically(1)) {
 
-                    if (!prepearingAdapter && adapter!!.list.size < 100) {
+                    if (!prepearingAdapter && adapter != null && adapter!!.list.size < 100) {
                         prepearingAdapter = true
+                        adapter!!.startLoading()
+
                         start += step
-                        Thread {
+                        val d = Thread {
                             if (adapter!!.list.size + step <= 100) {
                                 val d = get_top(start).first
                                 adapter!!.list = adapter!!.list.plus(d)
@@ -130,10 +146,16 @@ class TopScreenFragment(var adapter: TrackAdapter? = null, var selected: Boolean
                                 adapter!!.list = adapter!!.list.plus(d)
                             }
                             runOnUiThread {
+                                adapter!!.stopLoading()
                                 fragment_view.tracks_list_view.adapter!!.notifyDataSetChanged()
+
                             }
                             prepearingAdapter = false
-                        }.start()
+                        }
+                        d.uncaughtExceptionHandler = UncaughtExceptionHandler { p0, p1 ->
+                            Log.e("error", p1.message!!)
+                        }
+                        d.start()
                     }
                 }
             }
@@ -209,7 +231,9 @@ class TopScreenFragment(var adapter: TrackAdapter? = null, var selected: Boolean
         fragment_view.actions_bar.setNavigationOnClickListener {
 
             fragment_view.actions_bar.visibility = View.GONE
+            fragment_view.actions_bar.startAnimation(AnimationUtils.loadAnimation(context, R.anim.slide_up))
             fragment_view.navigation_bar.visibility = View.VISIBLE
+            fragment_view.navigation_bar.startAnimation(AnimationUtils.loadAnimation(context, R.anim.slide_bottom))
             adapter!!.deselectAll()
             selected = false
         }

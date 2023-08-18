@@ -9,16 +9,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
-import com.star_wormwood.bulavka.EditPlayListScreen.EditPlayListFragment
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 
-import com.star_wormwood.bulavka.LikedTracksScreen.LikedTracksFragment
-import com.star_wormwood.bulavka.Managers
-import com.star_wormwood.bulavka.NavigationScreen.NavigationScreenFragment
 import com.star_wormwood.bulavka.R
 import com.star_wormwood.bulavka.User
+import com.star_wormwood.bulavka.common.Adapters.PlayListAdapter
+import com.star_wormwood.bulavka.common.Adapters.onClickList
+import com.star_wormwood.bulavka.common.Decorators.SpaceItemDecoration
 import com.star_wormwood.bulavka.common.Items.PlayList
 import com.star_wormwood.bulavka.common.PlaylistListener
-import com.star_wormwood.bulavka.common.PlaylistLoader
 
 
 import kotlinx.android.synthetic.main.playlist_dialog.view.*
@@ -85,7 +85,7 @@ class PlayListDialog(var playlistListener: PlaylistListener) : DialogFragment() 
 //                                NavigationScreenFragment(
 //                                    likedScreen = LikedTracksFragment(),
 //                                    selectedItem = R.id.liked_screen
-//                                )
+//                                )PlaylistListener
 //                            )
 //                        }
 //                    })
@@ -94,18 +94,19 @@ class PlayListDialog(var playlistListener: PlaylistListener) : DialogFragment() 
         if (User.user_manager.createdPlayLists.isNotEmpty()) {
             dialog_view.create_playlist.visibility = View.VISIBLE
             dialog_view.playlists_status.visibility = View.GONE
-            PlaylistLoader(User.user_manager.createdPlayLists, object: PlaylistListener {
-                override fun onClickAdd() {
-                    dialog!!.dismiss()
-                    playlistListener.onClickAdd()
-                }
+            dialog_view.list.addItemDecoration(SpaceItemDecoration(20))
 
-                override fun onClick(playList: PlayList) {
-                    dialog!!.dismiss()
-                    playlistListener.onClick(playList)
+            dialog_view.list.layoutManager = GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
+            dialog_view.list.adapter =
+                PlayListAdapter(User.user_manager.createdPlayLists, object : onClickList {
+                    override fun onClick(playList: PlayList) {
+                        playlistListener.onClick(playList)
+                        dialog!!.dismiss()
+                    }
+                })
 
-                }
-            }).into(dialog_view.list)
+        }  else {
+            dialog_view.playlists_status.visibility = View.VISIBLE
         }
         dialog_view.close.setOnClickListener {
             dialog!!.dismiss()

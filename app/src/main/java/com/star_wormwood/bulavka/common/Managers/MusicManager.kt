@@ -4,6 +4,7 @@ package com.star_wormwood.bulavka.common.Managers
 import android.content.Intent
 import android.os.Build
 import android.util.Log
+import android.view.animation.AnimationUtils
 import com.star_wormwood.bulavka.Managers
 import com.star_wormwood.bulavka.R
 import com.star_wormwood.bulavka.Screens
@@ -14,6 +15,7 @@ import com.star_wormwood.bulavka.common.Services.Test
 
 
 import kotlinx.android.synthetic.main.main_activity.*
+import kotlinx.android.synthetic.main.top_fragment.view.navigation_bar
 import kotlinx.android.synthetic.main.track_info_bar.view.*
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.minutes
@@ -224,6 +226,7 @@ class MusicManager {
     fun updateBar() {
         try {
             Screens.activity.bar.open(currentTrack!!)
+
             if (playingState == PLAYING) {
                 Screens.activity.bar.play_button.setImageResource(R.drawable.ic_baseline_pause_24)
             } else {

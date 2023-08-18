@@ -7,6 +7,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.view.animation.AnimationUtils
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -25,7 +26,8 @@ import com.star_wormwood.bulavka.common.PlaylistListener
 
 import com.star_wormwood.bulavka.common.search_music
 import kotlinx.android.synthetic.main.search_fragment.view.*
-
+import kotlinx.android.synthetic.main.top_fragment.view.actions_bar
+import kotlinx.android.synthetic.main.top_fragment.view.navigation_bar
 
 
 class SearchScreenFragment(var adapter: TrackAdapter? = null, var selected: Boolean = false) :
@@ -130,7 +132,8 @@ class SearchScreenFragment(var adapter: TrackAdapter? = null, var selected: Bool
                 super.onScrollStateChanged(recyclerView, newState)
                 if (!recyclerView.canScrollVertically(1)) {
 
-                    if (!prepearingAdapter && start < max) {
+                    if (!prepearingAdapter  && adapter != null && start < max) {
+                        adapter!!.startLoading()
                         prepearingAdapter = true
                         start += step
                         Thread {
@@ -140,6 +143,7 @@ class SearchScreenFragment(var adapter: TrackAdapter? = null, var selected: Bool
                             adapter!!.list = adapter!!.list.plus(d)
 
                             runOnUiThread {
+                                adapter!!.stopLoading()
                                 fragment_view.tracks_list_view.adapter!!.notifyDataSetChanged()
                             }
                             prepearingAdapter = false
@@ -148,12 +152,12 @@ class SearchScreenFragment(var adapter: TrackAdapter? = null, var selected: Bool
                 }
             }
         })
+
         fragment_view.search_field.setOnKeyListener { view1, keycode, keyevent ->
+
             if (keyevent.keyCode == KeyEvent.KEYCODE_ENTER) {
 
                 search(fragment_view)
-
-
                 val imm: InputMethodManager =
                     requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 imm.hideSoftInputFromWindow(fragment_view.search_field.windowToken, 0)
@@ -161,6 +165,7 @@ class SearchScreenFragment(var adapter: TrackAdapter? = null, var selected: Bool
                 fragment_view.search_field.clearFocus()
                 return@setOnKeyListener true
             }
+
             runOnUiThread { fragment_view.found_status.visibility = View.INVISIBLE }
             return@setOnKeyListener false
         }
@@ -226,8 +231,9 @@ class SearchScreenFragment(var adapter: TrackAdapter? = null, var selected: Bool
         fragment_view.actions_bar.setNavigationOnClickListener {
 
             fragment_view.actions_bar.visibility = View.GONE
-
+            fragment_view.actions_bar.startAnimation(AnimationUtils.loadAnimation(context, R.anim.slide_up))
             fragment_view.navigation_bar.visibility = View.VISIBLE
+            fragment_view.navigation_bar.startAnimation(AnimationUtils.loadAnimation(context, R.anim.slide_bottom))
             adapter!!.deselectAll()
             selected = false
         }
@@ -274,7 +280,10 @@ class SearchScreenFragment(var adapter: TrackAdapter? = null, var selected: Bool
                                 track: Track
                             ) {
                                 view.actions_bar.visibility = View.VISIBLE
+                                view.actions_bar.startAnimation(AnimationUtils.loadAnimation(context, R.anim.slide_up))
+
                                 view.navigation_bar.visibility = View.GONE
+                                view.navigation_bar.startAnimation(AnimationUtils.loadAnimation(context, R.anim.slide_bottom))
                                 selected = true
                             }
 
@@ -283,7 +292,9 @@ class SearchScreenFragment(var adapter: TrackAdapter? = null, var selected: Bool
                                 track: Track
                             ) {
                                 view.actions_bar.visibility = View.GONE
+                                view.actions_bar.startAnimation(AnimationUtils.loadAnimation(context, R.anim.slide_bottom))
                                 view.navigation_bar.visibility = View.VISIBLE
+                                view.navigation_bar.startAnimation(AnimationUtils.loadAnimation(context, R.anim.slide_up))
                                 selected = false
 
                             }
@@ -294,18 +305,24 @@ class SearchScreenFragment(var adapter: TrackAdapter? = null, var selected: Bool
 
 
                     view.tracks_list_view.visibility = View.VISIBLE
+
                 }
             } else {
-                runOnUiThread { view.found_status.visibility = View.VISIBLE }
+                runOnUiThread {
+                    view.found_status.visibility = View.VISIBLE
+                    view.search_loading.visibility = View.GONE
+
+                }
             }
 
 
             runOnUiThread { view.search_loading.visibility = View.GONE }
         }
         lt.uncaughtExceptionHandler = Thread.UncaughtExceptionHandler { p0, p1 ->
-            view.connection_error_search.visibility = View.VISIBLE
+
 
             view.search_loading.visibility = View.GONE
+            view.connection_error_search.visibility = View.VISIBLE
         }
         lt.start()
 

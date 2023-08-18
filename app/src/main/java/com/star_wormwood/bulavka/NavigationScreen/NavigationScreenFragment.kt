@@ -1,7 +1,6 @@
 package com.star_wormwood.bulavka.NavigationScreen
 
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
 import com.star_wormwood.bulavka.LikedTracksScreen.LikedTracksFragment
@@ -38,8 +37,12 @@ class NavigationScreenFragment( // Весь конструктор нужен д
         fragmentManager.goToFragment(mapFragments[selectedItem]!!)
         view.navigation_bar.selectedItemId = selectedItem
         view.navigation_bar.setOnItemSelectedListener {
+            if (it.itemId == R.id.main_sreen) {
+                fragmentManager.goToFragment(mapFragments[it.itemId]!!, animation_enter = R.anim.slide_right, animation_exit = R.anim.fade_out)
+            } else {
+                fragmentManager.goToFragment(mapFragments[it.itemId]!!, animation_enter = R.anim.slide_lift, animation_exit = R.anim.fade_out)
+            }
 
-            fragmentManager.goToFragment(mapFragments[it.itemId]!!)
 
             return@setOnItemSelectedListener true
         }

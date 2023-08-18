@@ -16,7 +16,10 @@ import com.star_wormwood.bulavka.NavigationScreen.NavigationScreenFragment
 import com.star_wormwood.bulavka.TracksInPlaylistsScreen.TracksFragment
 
 import com.star_wormwood.bulavka.common.Adapters.OnClick
+import com.star_wormwood.bulavka.common.Adapters.PlayListAdapter
 import com.star_wormwood.bulavka.common.Adapters.TrackAdapter
+import com.star_wormwood.bulavka.common.Adapters.onClickList
+import com.star_wormwood.bulavka.common.Decorators.SpaceItemDecoration
 import com.star_wormwood.bulavka.common.Dialogs.ConfirmDialog
 
 import com.star_wormwood.bulavka.common.Dialogs.PlayListDialog
@@ -143,38 +146,7 @@ class LikedTracksFragment(var adapter: TrackAdapter? = null, var selected: Boole
                         for (track in adapter!!.getSelectedTracks()) {
                             User.user_manager.addToPlayList(playList.name, track)
                         }
-                        PlaylistLoader(
-                            User.user_manager.createdPlayLists,
-                            object : PlaylistListener {
-                                override fun onClickAdd() {
-                                    Managers.fragmentManager.goToFragment(
-                                        EditPlayListFragment(
-                                            EditPlayListFragment.MODE_CREATE,
-                                            object : EditPlaylistListener {
-                                                override fun onEdit(name: String) {
-                                                    Managers.fragmentManager.goToFragment(
-                                                        NavigationScreenFragment(
-                                                            selectedItem = R.id.liked_screen
-                                                        )
-                                                    )
-                                                    User.user_manager.createPlayList(name)
-                                                }
 
-                                                override fun onBack() {
-                                                    Managers.fragmentManager.goToFragment(
-                                                        NavigationScreenFragment(
-                                                            selectedItem = R.id.liked_screen
-                                                        )
-                                                    )
-                                                }
-                                            })
-                                    )
-                                }
-
-                                override fun onClick(playList: PlayList) {
-                                    Managers.fragmentManager.goToFragment(TracksFragment(playList))
-                                }
-                            }).into(fragment_view.playlists_view)
                         Toast.makeText(
                             context,
                             "Треки добавлены в плейлист ${playList.name}",
@@ -233,60 +205,84 @@ class LikedTracksFragment(var adapter: TrackAdapter? = null, var selected: Boole
         // Подключение к интернету отсутствует
 
 
-//        fragment_view.playlists_view.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        fragment_view.playlists_view.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
 //
 //
-//        fragment_view.playlists_view.addItemDecoration(SpaceItemDecoration(20))
+        fragment_view.playlists_view.addItemDecoration(SpaceItemDecoration(20))
 
         if (User.user_manager.createdPlayLists.isNotEmpty()) {
 
             fragment_view.playlists_status.visibility = View.GONE
             fragment_view.create_playlist.visibility = View.VISIBLE
-            PlaylistLoader(User.user_manager.createdPlayLists, object : PlaylistListener {
-                override fun onClickAdd() {
-                    Managers.fragmentManager.goToFragment(
-                        EditPlayListFragment(
-                            EditPlayListFragment.MODE_CREATE, object : EditPlaylistListener {
-                                override fun onEdit(name: String) {
-                                    User.user_manager.createPlayList(name)
-
-                                    Managers.fragmentManager.goToFragment(
-                                        NavigationScreenFragment(
-                                            selectedItem = R.id.liked_screen,
-                                            likedScreen = LikedTracksFragment(
-                                            )
-                                        )
-                                    )
-
-                                }
-
-                                override fun onBack() {
-                                    Managers.fragmentManager.goToFragment(
-                                        NavigationScreenFragment(
-                                            selectedItem = R.id.liked_screen
-                                        )
-                                    )
-                                }
-                            })
-                    )
-                }
-
-                override fun onClick(playList: PlayList) {
-                    Managers.fragmentManager.goToFragment(TracksFragment(playList))
-                }
-            }).into(fragment_view.playlists_view)
-//            fragment_view.playlists_view.adapter = PlayListAdapter(
-//                User.user_manager.createdPlayLists,
-//                object : onClickList {
-//                    override fun onClick(playList: PlayList) {
-//                        Log.e("play", playList.toString())
-//                        Managers.fragmentManager.goToFragment(TracksFragment(playList))
+//            PlaylistLoader(User.user_manager.createdPlayLists, object : PlaylistListener {
+//                override fun onClickAdd() {
+//                    Managers.fragmentManager.goToFragment(
+//                        EditPlayListFragment(
+//                            EditPlayListFragment.MODE_CREATE, object : EditPlaylistListener {
+//                                override fun onEdit(name: String) {
+//                                    User.user_manager.createPlayList(name)
 //
+//                                    Managers.fragmentManager.goToFragment(
+//                                        NavigationScreenFragment(
+//                                            selectedItem = R.id.liked_screen,
+//                                            likedScreen = LikedTracksFragment(
+//                                            )
+//                                        )
+//                                    )
+//
+//                                }
+//
+//                                override fun onBack() {
+//                                    Managers.fragmentManager.goToFragment(
+//                                        NavigationScreenFragment(
+//                                            selectedItem = R.id.liked_screen
+//                                        )
+//                                    )
+//                                }
+//                            })
+//                    )
+//                }
+//
+//                override fun onClick(playList: PlayList) {
+//                    Managers.fragmentManager.goToFragment(TracksFragment(playList))
+//                }
+//            }).into(fragment_view.playlists_view)
+            fragment_view.playlists_view.adapter = PlayListAdapter(
+                User.user_manager.createdPlayLists, object : onClickList {
+//                    override fun onClickAdd() {
+//                        Managers.fragmentManager.goToFragment(
+//                            EditPlayListFragment(
+//                                EditPlayListFragment.MODE_CREATE, object : EditPlaylistListener {
+//                                    override fun onEdit(name: String) {
+//                                        User.user_manager.createPlayList(name)
+//
+//                                        Managers.fragmentManager.goToFragment(
+//                                            NavigationScreenFragment(
+//                                                selectedItem = R.id.liked_screen,
+//                                                likedScreen = LikedTracksFragment(
+//                                                )
+//                                            )
+//                                        )
+//
+//                                    }
+//
+//                                    override fun onBack() {
+//                                        Managers.fragmentManager.goToFragment(
+//                                            NavigationScreenFragment(
+//                                                selectedItem = R.id.liked_screen
+//                                            )
+//                                        )
+//                                    }
+//                                })
+//                        )
 //                    }
-//
-//                },
-//                true
-//            )
+
+                    override fun onClick(playList: PlayList) {
+                        Managers.fragmentManager.goToFragment(TracksFragment(playList))
+                    }
+                },
+                true
+            )
         } else {
             fragment_view.create_playlist.visibility = View.GONE
             fragment_view.playlists_status.visibility = View.VISIBLE

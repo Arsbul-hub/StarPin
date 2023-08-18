@@ -30,7 +30,7 @@ class FragmentNavigationManager(
     fun goToPrevious() {
         val transaction = supportFragmentManager!!.beginTransaction()
         transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        transaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_in);
+        transaction.setCustomAnimations(R.anim.slide_up, R.anim.slide_up);
         transaction.replace(containerId, previousFragment).commit()
         currentFragment = previousFragment
     }

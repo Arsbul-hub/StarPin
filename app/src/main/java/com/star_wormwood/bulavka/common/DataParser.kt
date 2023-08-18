@@ -9,7 +9,7 @@ import com.star_wormwood.bulavka.common.Items.Track
 import org.jsoup.Jsoup
 
 val domain = "https://rur.hitmotop.com"
-
+const val DEFAULT_STEP = 48
 class ParserStatus() {
     companion object {
         const val OK = 1
@@ -54,8 +54,8 @@ fun search_music(req: String, start: Int = 0): Triple<List<Track>, Int, Int> {
     var siteData = Jsoup.connect("${domain}/search/start/$start?q=" + req.replace(" ", "+")).get().html()
 
     val out_list = mutableListOf<Track>()
-    var max = 48
-    var step = 48
+    var max = DEFAULT_STEP
+    var step = DEFAULT_STEP
 //    NumberFormatException
 
     if ("<li class=\"pagination__item active\"><b class=\"pagination__link pagination__btn active\">1</b></li>" in siteData) { // если количество треков не превышает 48 штук на странице
@@ -150,8 +150,8 @@ fun get_top(start: Int = 0, maxListLeng: Int? = null): Triple<List<Track>, Int, 
 
     var siteData = Jsoup.connect("${domain}/songs/top-today/start/$start").get().html()
     val out_top = mutableListOf<Track>()
-    var max: Int = 48
-    var step: Int = 48
+    var max: Int = DEFAULT_STEP
+    var step: Int = DEFAULT_STEP
     Log.e("test", maxListLeng.toString())
     if ("<li class=\"pagination__item active\"><b class=\"pagination__link pagination__btn active\">1</b></li>" in siteData) {
 

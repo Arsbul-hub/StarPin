@@ -10,6 +10,7 @@ import org.jsoup.Jsoup
 
 val domain = "https://rur.hitmotop.com"
 const val DEFAULT_STEP = 48
+
 class ParserStatus() {
     companion object {
         const val OK = 1
@@ -51,7 +52,8 @@ fun checkForInternet(context: Context): Boolean {
 }
 
 fun search_music(req: String, start: Int = 0): Triple<List<Track>, Int, Int> {
-    var siteData = Jsoup.connect("${domain}/search/start/$start?q=" + req.replace(" ", "+")).get().html()
+    var siteData =
+        Jsoup.connect("${domain}/search/start/$start?q=" + req.replace(" ", "+")).get().html()
 
     val out_list = mutableListOf<Track>()
     var max = DEFAULT_STEP
@@ -127,7 +129,10 @@ fun search_music(req: String, start: Int = 0): Triple<List<Track>, Int, Int> {
                     )
             j = j.substringBefore("""');"></div>""")
             j = j.replace("\n", "").replace("  ", "").substringAfter(" ")
-            j = domain + j
+            // j = domain + j.replace("https://static.hitmcdn.com", "")
+            if ("https://static.hitmcdn.com" in j) {
+                j = domain + j.replace("https://static.hitmcdn.com", "")
+            }
             track.avatar = j
         }
         if (track.isFull()) {
@@ -225,7 +230,10 @@ fun get_top(start: Int = 0, maxListLeng: Int? = null): Triple<List<Track>, Int, 
                     )
             j = j.substringBefore("""');"></div>""")
             j = j.replace("\n", "").replace("  ", "").substringAfter(" ")
-            j = domain + j
+            // j = domain + j.replace("https://static.hitmcdn.com", "")
+            if ("https://static.hitmcdn.com" in j) {
+                j = domain + j.replace("https://static.hitmcdn.com", "")
+            }
             track.avatar = j
         }
 

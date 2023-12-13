@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalTime::class)
-
 package com.star_wormwood.bulavka.common
 
 import android.annotation.SuppressLint
@@ -26,6 +24,7 @@ import kotlinx.android.synthetic.main.track_info_bar.view.artist
 import kotlinx.android.synthetic.main.track_info_bar.view.avatar
 import kotlinx.android.synthetic.main.track_info_bar.view.name
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
 import kotlin.time.minutes
@@ -110,10 +109,10 @@ class TrackInfoBar :
 
                         val displayPositionMinutes = MusicManager.human(positionMinutes)
                         val displayPositionSeconds =
-                            MusicManager.human((positionSeconds.seconds - positionMinutes.minutes).inWholeSeconds)
+                            MusicManager.human((positionSeconds.seconds - positionMinutes.seconds / 60).inWholeSeconds)
                         val displayDurationMinutes = MusicManager.human(maxMinutes)
                         val displayDurationSeconds =
-                            MusicManager.human((maxSeconds.seconds - maxMinutes.minutes).inWholeSeconds)
+                            MusicManager.human((maxSeconds.seconds - maxMinutes.seconds / 60).inWholeSeconds)
 
                         play_position.text = "$displayPositionMinutes:$displayPositionSeconds"
                         duration.text = "$displayDurationMinutes:$displayDurationSeconds"

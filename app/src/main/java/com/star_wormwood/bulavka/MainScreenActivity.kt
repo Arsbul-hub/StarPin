@@ -77,24 +77,14 @@ class MainScreenActivity : AppCompatActivity() {
                 applicationContext,
                 READ_PHONE_STATE
             ) != PackageManager.PERMISSION_GRANTED
-        )
+        ) {
             ActivityCompat.requestPermissions(
                 Screens.activity,
                 arrayOf(READ_PHONE_STATE),
                 111
             )
-        if (ActivityCompat.checkSelfPermission(
-                applicationContext,
-                FOREGROUND_SERVICE
-            ) != PackageManager.PERMISSION_GRANTED
-        )
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                ActivityCompat.requestPermissions(
-                    Screens.activity,
-                    arrayOf(FOREGROUND_SERVICE),
-                    111
-                )
-            }
+        }
+
         Log.e("state123", Managers.musicManager.playingState.toString())
         if (Managers.musicManager.playingState != MusicManager.NOT_PREPARED) {
             Managers.musicManager.updateBar()

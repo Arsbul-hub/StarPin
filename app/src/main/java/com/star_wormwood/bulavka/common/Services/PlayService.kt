@@ -26,6 +26,7 @@ import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
@@ -85,15 +86,15 @@ class PlayService : Service() {
 
             }
         }.start()
-
-        if (ActivityCompat.checkSelfPermission(
-                applicationContext,
-                Manifest.permission.READ_PHONE_STATE
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-
-            getPhoneState()
-        }
+//
+//        if (ActivityCompat.checkSelfPermission(
+//                applicationContext,
+//                Manifest.permission.READ_PHONE_STATE
+//            ) == PackageManager.PERMISSION_GRANTED
+//        ) {
+//
+//            getPhoneState()
+//        }
 //        broadcastReceiver = object : BroadcastReceiver() {
 //            override fun onReceive(context: Context, intent: Intent) {
 //                val action = intent.action
@@ -110,112 +111,9 @@ class PlayService : Service() {
 //        val receiverFilter = IntentFilter()
 //
 //        registerReceiver(broadcastReceiver, receiverFilter);
-        getHeadphonesState()
+//        getHeadphonesState()
     }
 
-    private fun getHeadphonesState() {
-        val gg: AudioManager = getSystemService(AUDIO_SERVICE) as AudioManager
-        gg.registerAudioDeviceCallback(object : AudioDeviceCallback() {
-            override fun onAudioDevicesAdded(addedDevices: Array<out AudioDeviceInfo>?) {
-                super.onAudioDevicesAdded(addedDevices)
-                Log.e("oldPlayingState", oldPlayingState.toString())
-                if (oldPlayingState == MusicManager.PLAYING) {
-                    Managers.musicManager.unpause()
-                }
-                Log.e("HeadphonesState", "Connected")
-            }
-
-            override fun onAudioDevicesRemoved(removedDevices: Array<out AudioDeviceInfo>?) {
-                super.onAudioDevicesRemoved(removedDevices)
-
-                oldPlayingState = Managers.musicManager.playingState
-                //Managers.musicManager.pause()
-                Log.e("oldPhoneState", oldPhoneState.toString())
-
-
-            }
-
-        }, null)
-
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-
-    }
-
-    private fun getPhoneState() {
-        val tm: TelephonyManager = getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.READ_PHONE_STATE
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                tm.registerTelephonyCallback(
-                    mainExecutor,
-                    object : TelephonyCallback(), TelephonyCallback.CallStateListener {
-                        override fun onCallStateChanged(state: Int) {
-                            when (state) {
-                                TelephonyManager.CALL_STATE_OFFHOOK -> {
-                                    oldPlayingState = Managers.musicManager.playingState.toInt()
-
-                                    Managers.musicManager.pause()
-                                    oldPhoneState = TelephonyManager.CALL_STATE_OFFHOOK
-                                    Log.e("PhoneState", "OFFHOOK")
-                                }
-
-                                TelephonyManager.CALL_STATE_IDLE -> {
-                                    if (oldPlayingState == MusicManager.PLAYING && oldPhoneState == TelephonyManager.CALL_STATE_OFFHOOK) {
-                                        Managers.musicManager.unpause()
-                                    }
-                                    Log.e("PhoneState", "Idle")
-
-                                }
-
-                                TelephonyManager.CALL_STATE_RINGING -> {
-                                    oldPlayingState = Managers.musicManager.playingState.toInt()
-                                    Managers.musicManager.pause()
-                                    Log.e("PhoneState", "Rining")
-                                }
-                            }
-                        }
-                    })
-            } else {
-                tm.listen(object : PhoneStateListener() {
-
-                    override fun onCallStateChanged(state: Int, phoneNumber: String?) {
-                        super.onCallStateChanged(state, phoneNumber)
-                        when (state) {
-                            TelephonyManager.CALL_STATE_OFFHOOK -> {
-                                oldPlayingState = Managers.musicManager.playingState.toInt()
-                                Managers.musicManager.pause()
-
-                                Log.e("PhoneState", "OFFHOOK")
-                            }
-
-                            TelephonyManager.CALL_STATE_IDLE -> {
-                                if (oldPlayingState == MusicManager.PLAYING) {
-                                    Managers.musicManager.unpause()
-                                }
-                                Log.e("PhoneState", "Idle")
-
-                            }
-
-                            TelephonyManager.CALL_STATE_RINGING -> {
-                                oldPlayingState = Managers.musicManager.playingState.toInt()
-                                Managers.musicManager.pause()
-                                Log.e("PhoneState", "Rining")
-                            }
-                        }
-
-
-                    }
-                }, PhoneStateListener.LISTEN_CALL_STATE)
-            }
-        }
-
-    }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
@@ -289,92 +187,92 @@ class PlayService : Service() {
 
     private fun play(url: String) {
 
+        try {
+
+            Screens.activity.runOnUiThread {
+                Managers.musicManager.onLoading?.onStartLoading()
+
+            }
+        } catch (e: Exception) {
+            Log.e("onStartLoading", e.message.toString())
+        }
+
+        if (::mediaPlayer.isInitialized) {
+
+            mediaPlayer.release()
+
+
+        }
+        is_prepared = false
+        Managers.musicManager.progress = 0
+        mediaPlayer = MediaPlayer()
+
+
+        mediaPlayer.setAudioAttributes(
+            AudioAttributes.Builder()
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .build()
+        )
+        mediaPlayer.setDataSource(url)
+        mediaPlayer.setOnErrorListener { mediaPlayer, i, i2 ->
+            Managers.musicManager.mediaPlayerCallback?.onError()
             try {
-
                 Screens.activity.runOnUiThread {
-                    Managers.musicManager.onLoading?.onStartLoading()
-
+                    Managers.musicManager.onLoading?.onStopLoading()
                 }
+
             } catch (e: Exception) {
-                Log.e("onStartLoading", e.message.toString())
+                Log.e("onStopLoading", e.message.toString())
+            }
+            true
+
+        }
+        mediaPlayer.setOnSeekCompleteListener { Managers.musicManager.mediaPlayerCallback?.onSeekTo() }
+        //mediaPlayer.isLooping = false
+        mediaPlayer.setOnPreparedListener {
+
+            is_prepared = true
+            try {
+                Screens.activity.runOnUiThread {
+                    Managers.musicManager.onLoading?.onStopLoading()
+                }
+
+
+            } catch (e: Exception) {
+                Log.e("onStopLoading", e.message.toString())
             }
 
-            if (::mediaPlayer.isInitialized) {
-
-                mediaPlayer.release()
-
-
+            if (Managers.musicManager.playingState == MusicManager.PLAYING) {
+                mediaPlayer.start()
             }
-            is_prepared = false
-            Managers.musicManager.progress = 0
-            mediaPlayer = MediaPlayer()
 
 
-            mediaPlayer.setAudioAttributes(
-                AudioAttributes.Builder()
-                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .build()
+
+            Managers.musicManager.maxPosition = getMax()
+            showNotification(
+                Managers.musicManager.playingState,
+                Managers.musicManager.currentTrack!!.name,
+                Managers.musicManager.currentTrack!!.artist,
+                Managers.musicManager.currentTrack!!.avatar
             )
-            mediaPlayer.setDataSource(url)
-            mediaPlayer.setOnErrorListener { mediaPlayer, i, i2 ->
-                Managers.musicManager.mediaPlayerCallback?.onError()
-                try {
-                    Screens.activity.runOnUiThread {
-                        Managers.musicManager.onLoading?.onStopLoading()
-                    }
 
-                } catch (e: Exception) {
-                    Log.e("onStopLoading", e.message.toString())
-                }
-                true
+        }
+        mediaPlayer.setOnCompletionListener {
 
-            }
-            mediaPlayer.setOnSeekCompleteListener { Managers.musicManager.mediaPlayerCallback?.onSeekTo() }
-            //mediaPlayer.isLooping = false
-            mediaPlayer.setOnPreparedListener {
+            //stopSelf()
 
-                is_prepared = true
-                try {
-                    Screens.activity.runOnUiThread {
-                        Managers.musicManager.onLoading?.onStopLoading()
-                    }
+            //Thread {
 
+            val track = Managers.musicManager.nextTrack()
+            play(track.url)
+            //}.start()
+            //if (getPosition() == getMax()) {
+            //nextTrack()
+            //}
 
-                } catch (e: Exception) {
-                    Log.e("onStopLoading", e.message.toString())
-                }
+        }
 
-                if (Managers.musicManager.playingState == MusicManager.PLAYING) {
-                    mediaPlayer.start()
-                }
-
-
-
-                Managers.musicManager.maxPosition = getMax()
-                showNotification(
-                    Managers.musicManager.playingState,
-                    Managers.musicManager.currentTrack!!.name,
-                    Managers.musicManager.currentTrack!!.artist,
-                    Managers.musicManager.currentTrack!!.avatar
-                )
-
-            }
-            mediaPlayer.setOnCompletionListener {
-
-                //stopSelf()
-
-                //Thread {
-
-                val track = Managers.musicManager.nextTrack()
-                play(track.url)
-                //}.start()
-                //if (getPosition() == getMax()) {
-                //nextTrack()
-                //}
-
-            }
-
-            mediaPlayer.prepareAsync()
+        mediaPlayer.prepareAsync()
 
 
     }
@@ -383,6 +281,8 @@ class PlayService : Service() {
     @SuppressLint("LaunchActivityFromNotification")
     private fun showNotification(state: Int, name: String, artist: String, avatar: String) {
         mediaSession = MediaSessionCompat(this, "My music")
+
+
         val toActivity = Intent(this, MainScreenActivity::class.java)
         val toActivityPendingIntent = PendingIntent.getActivity(this, 0, toActivity, FLAG_IMMUTABLE)
 
@@ -402,26 +302,35 @@ class PlayService : Service() {
         val nextIntent = Intent(this, PlayBroadcastReceiver::class.java)
         nextIntent.action = "next"
         val nextPendingIntent = PendingIntent.getBroadcast(this, 0, nextIntent, FLAG_IMMUTABLE)
-        val likeIntent = Intent(this, PlayBroadcastReceiver::class.java)
-        likeIntent.action = "like"
-        val likePendingIntent = PendingIntent.getBroadcast(this, 0, nextIntent, FLAG_IMMUTABLE)
 
-
+        val mediaStyle = androidx.media.app.NotificationCompat.MediaStyle()
+            .setMediaSession(mediaSession.sessionToken)
+        mediaStyle.setShowActionsInCompactView(0, 1, 2)
         var notification = NotificationCompat.Builder(this, CHANNEL_ID)
             //.setContentText("$artist - $name")
             .setSmallIcon(R.drawable.ic_baseline_audiotrack_24)
+            .setStyle(mediaStyle)
+
+
             .setCategory(Notification.CATEGORY_SERVICE)
-            .setStyle(
-                androidx.media.app.NotificationCompat.MediaStyle()
-                    .setShowActionsInCompactView(0, 1, 2)
+            .setOngoing(true)
 
-                    .setMediaSession(mediaSession.sessionToken)
-            )
+        //Log.e("getPosition().toLong()", mediaPlayer.duration.toLong().toString())
 
+        mediaSession.setCallback(object : MediaSessionCompat.Callback() {
+            override fun onSeekTo(pos: Long) {
+                super.onSeekTo(pos)
+                setPosition(pos.toInt())
+                showNotification(state, name, artist, avatar)
+            }
 
-            .setContentIntent(toActivityPendingIntent)
-        if (state == MusicManager.PLAYING || state == MusicManager.NOT_PREPARED) {
+            override fun onPause() {
+                super.onPause()
+                Log.e("gg", "Hello!")
+            }
+        })
 
+        if (state == MusicManager.PLAYING) {
             val previousAction = NotificationCompat.Action.Builder(
                 R.drawable.ic_baseline_skip_previous_24,
                 "ggg",
@@ -437,16 +346,10 @@ class PlayService : Service() {
                 "ggg",
                 nextPendingIntent
             ).build()
-            val likeAction = NotificationCompat.Action.Builder(
-                R.drawable.no_liked,
-                "ggg",
-                likePendingIntent
-            ).build()
             notification = notification
                 .addAction(previousAction)
                 .addAction(pauseAction)
                 .addAction(nextAction)
-//                .addAction(likeAction)
 
 
             val mPlaybackState = PlaybackStateCompat.Builder()
@@ -479,23 +382,12 @@ class PlayService : Service() {
                 .addAction(nextAction)
             val mPlaybackState = PlaybackStateCompat.Builder()
                 .setState(PlaybackStateCompat.STATE_PAUSED, getPosition().toLong(), 1.0f)
-
                 .setActions(PlaybackStateCompat.ACTION_SEEK_TO)
 
             mediaSession.setPlaybackState(mPlaybackState.build())
 
+
         }
-
-
-        //Log.e("getPosition().toLong()", mediaPlayer.duration.toLong().toString())
-        mediaSession.setCallback(object : MediaSessionCompat.Callback() {
-            override fun onSeekTo(pos: Long) {
-                super.onSeekTo(pos)
-                setPosition(pos.toInt())
-                showNotification(state, name, artist, avatar)
-            }
-        })
-
 
         Glide.with(applicationContext)
             .asBitmap()
@@ -566,18 +458,17 @@ class PlayService : Service() {
 
     }
 
+
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val serviceChannel = NotificationChannel(
                 CHANNEL_ID, "Foreground Service Channel",
-                NotificationManager.IMPORTANCE_HIGH
+                NotificationManager.IMPORTANCE_NONE
             )
-
             serviceChannel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
             val manager = getSystemService(NotificationManager::class.java)
             manager!!.createNotificationChannel(serviceChannel)
         }
-
     }
 
     override fun onBind(p0: Intent?): IBinder? {

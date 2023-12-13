@@ -103,6 +103,7 @@ class TrackAdapter(var list: List<Track>, val on_click: OnClick?) :
                 holder.itemView.avatar.setImageResource(R.drawable.no_avatar)
             } else {
                 val options: RequestOptions = RequestOptions().error(R.drawable.no_avatar)
+                Log.e("grsfe", track.avatar)
                 Glide.with(holder.itemView.context).load(track.avatar).apply(options)
                     .into(holder.itemView.avatar)
 

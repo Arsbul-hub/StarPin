@@ -214,11 +214,9 @@ class MusicManager {
 
     private fun startPlayService(intent: Intent) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-
-
             Screens.activity.startForegroundService(intent)
         } else {
-
+            Log.e("service123", "Old service started")
             Screens.activity.startService(intent)
         }
     }
